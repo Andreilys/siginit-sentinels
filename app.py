@@ -1,8 +1,9 @@
 import os
-from flask import Flask, render_template
+from flask import Flask, render_template, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO
 from flask_login import LoginManager
+from flask_cors import CORS
 from sqlalchemy.orm import DeclarativeBase
 
 class Base(DeclarativeBase):

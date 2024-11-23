@@ -15,4 +15,5 @@ dependencies = [
     "transformers>=4.46.3",
     "spacy>=3.8.2",
     "langdetect>=1.0.9",
+    "flask-cors>=5.0.0",
 ]

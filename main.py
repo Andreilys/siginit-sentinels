@@ -8,4 +8,5 @@ if __name__ == "__main__":
                 port=5000, 
                 debug=True,
                 use_reloader=True,
-                log_output=True)
+                log_output=True,
+                allow_unsafe_werkzeug=True)  # Allow development server in current environment

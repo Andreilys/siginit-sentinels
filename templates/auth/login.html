@@ -8,8 +8,8 @@
                 <h4 class="card-title mb-0">Military Intelligence Platform</h4>
             </div>
             <div class="card-body px-4 py-4">
-                <form id="loginForm" method="POST" action="{{ url_for('auth.login') }}" onsubmit="handleLogin(event)">
-                    {{ form.hidden_tag() if form }}
+                <form id="loginForm" method="POST" action="{{ url_for('auth.login') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <div class="form-floating mb-3">
                         <input type="text" class="form-control" id="username" name="username" placeholder="Username" required>
                         <label for="username">Username</label>

@@ -1,4 +1,4 @@
-from app import create_app, socketio
+from app import create_app, socketio, db
 import logging
 
 app = create_app()
@@ -11,13 +11,17 @@ logging.basicConfig(
 
 if __name__ == "__main__":
     try:
-        socketio.run(app, 
-                    host="0.0.0.0", 
+        # Initialize database tables
+        with app.app_context():
+            db.create_all()
+            
+        socketio.run(app,
+                    host="0.0.0.0",
                     port=5000,
                     debug=False,
-                    use_reloader=False,
                     log_output=True,
-                    allow_unsafe_werkzeug=False)
+                    use_reloader=False,
+                    allow_unsafe_werkzeug=True)
     except Exception as e:
         app.logger.error(f"Server error: {str(e)}")
         raise

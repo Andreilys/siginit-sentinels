@@ -18,12 +18,13 @@ dependencies = [
     "flask-cors>=5.0.0",
     "gevent>=24.11.1",
     "flask-wtf>=1.2.2",
-    "werkzeug",
-    "sqlalchemy",
-    "python-socketio",
+    "werkzeug>=3.0.1",
+    "sqlalchemy>=2.0.23",
+    "python-socketio>=5.10.0",
     "en-core-web-sm",
-    "ru-core-news-sm",
-    "python-dotenv",
+    "python-dotenv>=1.0.0",
+    "gevent-websocket>=0.10.1",
+    "eventlet>=0.33.3",
 ]
 
 [tool.uv.sources]

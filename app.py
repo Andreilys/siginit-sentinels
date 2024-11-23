@@ -18,7 +18,8 @@ socketio = SocketIO(
     cors_allowed_origins="*",
     async_mode='gevent',
     ping_timeout=60,
-    ping_interval=25
+    ping_interval=25,
+    transport='websocket'
 )
 login_manager = LoginManager()
 
@@ -83,7 +84,13 @@ def create_app():
         app.logger.error(f"Database initialization failed: {str(e)}", exc_info=True)
         raise
         
-    socketio.init_app(app)
+    socketio.init_app(app, 
+    async_mode='gevent',
+    ping_timeout=60,
+    ping_interval=25,
+    transport='websocket',
+    cors_allowed_origins='*'
+)
     login_manager.init_app(app)
     csrf.init_app(app)
     

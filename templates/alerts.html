@@ -99,7 +99,7 @@
 </div>
 
 <script>
-// Initialize Socket.IO
+// Socket.IO initialization
 let socket;
 document.addEventListener('DOMContentLoaded', function() {
     socket = io({
@@ -109,6 +109,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+// Utility functions
 function generateMediaPreview(intel) {
     if (!intel || !intel.media_type || !intel.media_url) {
         return '<div class="alert alert-info">No media content available</div>';
@@ -147,7 +148,38 @@ function generateMediaPreview(intel) {
                 </div>`;
     }
 }
-</script>
+
+// Core functions
+function showIntelDetails(alertId) {
+    fetch(`/api/alerts/${alertId}/details`)
+        .then(response => response.json())
+        .then(data => {
+            const modal = new bootstrap.Modal(document.getElementById('intelModal'));
+            const mediaPreview = generateMediaPreview(data.intel);
+            document.getElementById('intelModalContent').innerHTML = `
+                <h5>Intelligence Details</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Source:</strong> ${data.intel.source}</p>
+                        <p><strong>Content:</strong> ${data.intel.content}</p>
+                        <p><strong>Credibility Score:</strong> ${data.intel.credibility_score}</p>
+                        <p><strong>Language:</strong> ${data.intel.language}</p>
+                        <p><strong>Location:</strong> ${data.intel.latitude}, ${data.intel.longitude}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="media-preview mb-3">
+                            ${mediaPreview}
+                        </div>
+                        <div class="media-metadata small">
+                            ${data.intel.media_metadata ? JSON.stringify(data.intel.media_metadata, null, 2) : 'No metadata available'}
+                        </div>
+                    </div>
+                </div>
+            `;
+            modal.show();
+        });
+}
+
 function acknowledgeAlert(alertId) {
     const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     fetch(`/api/alerts/${alertId}/acknowledge`, {
@@ -180,50 +212,23 @@ function resolveAlert(alertId) {
     });
 }
 
-function showIntelDetails(alertId) {
-    fetch(`/api/alerts/${alertId}/details`)
-        .then(response => response.json())
-        .then(data => {
-            // Create modal with intel details
-            const modal = new bootstrap.Modal(document.getElementById('intelModal'));
-            const mediaPreview = generateMediaPreview(data.intel);
-            document.getElementById('intelModalContent').innerHTML = `
-                <h5>Intelligence Details</h5>
-                <div class="row">
-                    <div class="col-md-6">
-                        <p><strong>Source:</strong> ${data.intel.source}</p>
-                        <p><strong>Content:</strong> ${data.intel.content}</p>
-                        <p><strong>Credibility Score:</strong> ${data.intel.credibility_score}</p>
-                        <p><strong>Language:</strong> ${data.intel.language}</p>
-                        <p><strong>Location:</strong> ${data.intel.latitude}, ${data.intel.longitude}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="media-preview mb-3">
-                            ${mediaPreview}
-                        </div>
-                        <div class="media-metadata small">
-                            ${data.intel.media_metadata ? JSON.stringify(data.intel.media_metadata, null, 2) : 'No metadata available'}
-                        </div>
-                    </div>
-                </div>
-            `;
-            modal.show();
-        });
-}
-
-document.querySelectorAll('[data-filter]').forEach(button => {
-    button.addEventListener('click', (e) => {
-        const filter = e.target.dataset.filter;
-        const rows = document.querySelectorAll('#alerts-table tr');
-        
-        rows.forEach(row => {
-            if (filter === 'all') {
-                row.style.display = '';
-            } else {
-                const priority = row.className.includes('priority-1') ? 'high' :
-                               row.className.includes('priority-2') ? 'medium' : 'low';
-                row.style.display = priority === filter ? '' : 'none';
-            }
+// Event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Filter buttons event listeners
+    document.querySelectorAll('[data-filter]').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const filter = e.target.dataset.filter;
+            const rows = document.querySelectorAll('#alerts-table tr');
+            
+            rows.forEach(row => {
+                if (filter === 'all') {
+                    row.style.display = '';
+                } else {
+                    const priority = row.className.includes('priority-1') ? 'high' :
+                                   row.className.includes('priority-2') ? 'medium' : 'low';
+                    row.style.display = priority === filter ? '' : 'none';
+                }
+            });
         });
     });
 });

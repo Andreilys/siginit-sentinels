@@ -13,13 +13,29 @@ def login():
         password = request.form.get('password')
         remember = bool(request.form.get('remember', False))
         
-        user = User.query.filter_by(username=username).first()
+        current_app.logger.info(f"Login attempt for user: {username}")
         
-        if user and user.check_password(password):
-            login_user(user, remember=remember)
-            return redirect(url_for('main.dashboard'))
+        try:
+            user = User.query.filter_by(username=username).first()
             
-        flash('Invalid username or password', 'danger')
+            if user and user.check_password(password):
+                login_user(user, remember=remember)
+                current_app.logger.info(f"Successful login for user: {username}")
+                
+                # Get next page from session
+                next_page = request.args.get('next')
+                if not next_page or url_parse(next_page).netloc != '':
+                    next_page = url_for('main.dashboard')
+                    
+                return redirect(next_page)
+            
+            current_app.logger.warning(f"Failed login attempt for user: {username}")
+            flash('Invalid username or password', 'danger')
+            
+        except Exception as e:
+            current_app.logger.error(f"Login error: {str(e)}")
+            flash('An error occurred during login. Please try again.', 'danger')
+            
     return render_template('auth/login.html')
 
 @auth_bp.route('/logout')

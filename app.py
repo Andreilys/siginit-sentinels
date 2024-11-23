@@ -22,17 +22,34 @@ def create_app():
         SQLALCHEMY_ENGINE_OPTIONS={
             "pool_recycle": 300,
             "pool_pre_ping": True,
+            "pool_timeout": 30,
+            "pool_size": 30,
+            "max_overflow": 0,
         },
-        SQLALCHEMY_TRACK_MODIFICATIONS=False
+        SQLALCHEMY_TRACK_MODIFICATIONS=False,
+        PERMANENT_SESSION_LIFETIME=1800,  # 30 minutes
+        SESSION_COOKIE_SECURE=True,
+        SESSION_COOKIE_HTTPONLY=True
     )
     
     # Initialize extensions
-    db.init_app(app)
+    try:
+        db.init_app(app)
+        with app.app_context():
+            db.engine.connect()
+            app.logger.info("Database connection successful")
+    except Exception as e:
+        app.logger.error(f"Database connection failed: {str(e)}")
+        raise
+        
     socketio.init_app(app)
     login_manager.init_app(app)
     
     # Configure login manager
     login_manager.login_view = 'auth.login'  # type: ignore
+    login_manager.login_message = 'Please log in to access this page.'
+    login_manager.login_message_category = 'warning'
+    login_manager.session_protection = 'strong'
     
     @login_manager.user_loader
     def load_user(user_id):

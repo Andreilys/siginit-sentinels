@@ -106,22 +106,24 @@
         <script>
             // Async loading of Socket.IO
             window.addEventListener('load', function() {
-                const script = document.createElement('script');
-                script.src = 'https://cdn.socket.io/4.0.1/socket.io.min.js';
-                script.async = true;
-                script.onerror = function() {
+                const socketScript = document.createElement('script');
+                socketScript.src = 'https://cdn.socket.io/4.0.1/socket.io.min.js';
+                socketScript.async = true;
+                socketScript.onerror = function() {
                     handleResourceError(this, 'Real-time updates are currently unavailable');
                 };
-                script.onload = function() {
-                    // Load websocket handling script
+                document.body.appendChild(socketScript);
+
+                // Wait for Socket.IO to load before loading websocket.js
+                socketScript.onload = function() {
                     const websocketScript = document.createElement('script');
                     websocketScript.src = "{{ url_for('static', filename='js/websocket.js') }}";
+                    websocketScript.defer = true;
                     websocketScript.onerror = function() {
                         handleResourceError(this, 'Real-time functionality might be limited');
                     };
                     document.body.appendChild(websocketScript);
                 };
-                document.body.appendChild(script);
             });
         </script>
         {% endif %}

@@ -16,4 +16,6 @@ dependencies = [
     "spacy>=3.8.2",
     "langdetect>=1.0.9",
     "flask-cors>=5.0.0",
+    "gevent>=24.11.1",
+    "flask-wtf>=1.2.2",
 ]

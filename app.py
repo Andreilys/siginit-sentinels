@@ -4,13 +4,21 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO
 from flask_login import LoginManager
 from flask_cors import CORS
+from flask_wtf.csrf import CSRFProtect
 from sqlalchemy.orm import DeclarativeBase
 
 class Base(DeclarativeBase):
     pass
 
+csrf = CSRFProtect()
+
 db = SQLAlchemy(model_class=Base)
-socketio = SocketIO()
+socketio = SocketIO(
+    cors_allowed_origins="*",
+    async_mode='gevent',
+    ping_timeout=60,
+    ping_interval=25
+)
 login_manager = LoginManager()
 
 def create_app():
@@ -45,6 +53,7 @@ def create_app():
         
     socketio.init_app(app)
     login_manager.init_app(app)
+    csrf.init_app(app)
     
     # Configure login manager
     login_manager.login_view = 'auth.login'  # type: ignore

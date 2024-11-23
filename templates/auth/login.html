@@ -9,17 +9,17 @@
             </div>
             <div class="card-body px-4 py-4">
                 <form id="loginForm" method="POST" action="{{ url_for('auth.login') }}">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    {{ form.csrf_token }}
                     <div class="form-floating mb-3">
-                        <input type="text" class="form-control" id="username" name="username" placeholder="Username" required>
+                        {{ form.username(class="form-control", id="username", placeholder="Username") }}
                         <label for="username">Username</label>
                     </div>
                     <div class="form-floating mb-3">
-                        <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
+                        {{ form.password(class="form-control", id="password", placeholder="Password") }}
                         <label for="password">Password</label>
                     </div>
                     <div class="form-check mb-3">
-                        <input type="checkbox" class="form-check-input" id="remember" name="remember">
+                        {{ form.remember(class="form-check-input", id="remember") }}
                         <label class="form-check-label" for="remember">Remember me</label>
                     </div>
                     <div class="d-grid gap-2">

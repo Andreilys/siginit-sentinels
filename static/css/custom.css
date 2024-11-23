@@ -116,3 +116,38 @@
     font-size: 0.75rem;
     padding: 0.25em 0.5em;
 }
+
+/* Alert Content Preview Styles */
+.alert-details p {
+    background-color: var(--bs-dark);
+    color: var(--bs-light);
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.content-preview {
+    background-color: var(--bs-dark);
+    color: var(--bs-light);
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    margin-top: 0.5rem;
+}
+
+/* Map Popup Styles */
+.intel-popup {
+    color: var(--bs-light);
+}
+
+.intel-popup .popup-content {
+    color: var(--bs-light);
+}
+
+.leaflet-popup-content-wrapper {
+    background-color: var(--bs-dark);
+    color: var(--bs-light);
+}
+
+.leaflet-popup-tip {
+    background-color: var(--bs-dark);
+}

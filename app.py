@@ -14,21 +14,43 @@ login_manager = LoginManager()
 
 def create_app():
     app = Flask(__name__)
-    app.secret_key = os.environ.get("FLASK_SECRET_KEY") or "a secret key"
-    app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
-    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-        "pool_recycle": 300,
-        "pool_pre_ping": True,
-    }
-
+    
+    # Configuration
+    app.config.update(
+        SECRET_KEY=os.environ.get("FLASK_SECRET_KEY", "a secret key"),
+        SQLALCHEMY_DATABASE_URI=os.environ.get("DATABASE_URL"),
+        SQLALCHEMY_ENGINE_OPTIONS={
+            "pool_recycle": 300,
+            "pool_pre_ping": True,
+        },
+        SQLALCHEMY_TRACK_MODIFICATIONS=False
+    )
+    
+    # Initialize extensions
     db.init_app(app)
     socketio.init_app(app)
     login_manager.init_app(app)
-    login_manager.login_view = 'auth.login'
+    
+    # Configure login manager
+    login_manager.login_view = 'auth.login'  # type: ignore
+    
     @login_manager.user_loader
     def load_user(user_id):
         from models import User
         return User.query.get(int(user_id))
+    
+    # SocketIO event handlers
+    @socketio.on_error()
+    def error_handler(e):
+        app.logger.error(f'SocketIO error: {str(e)}')
+
+    @socketio.on('connect')
+    def handle_connect():
+        app.logger.info('Client connected to SocketIO')
+
+    @socketio.on('disconnect')
+    def handle_disconnect():
+        app.logger.info('Client disconnected from SocketIO')
 
 
     from routes.auth import auth_bp
@@ -49,7 +71,24 @@ def create_app():
         return render_template('errors/500.html'), 500
 
     with app.app_context():
-        import models
-        db.create_all()
+        try:
+            import models
+            db.create_all()
+            
+            # Check if admin user exists, if not create one
+            from models import User
+            admin = User.query.filter_by(username='admin').first()
+            if not admin:
+                admin = User()
+                admin.username = 'admin'
+                admin.email = 'admin@intelligence.mil'
+                admin.role = 'admin'
+                admin.set_password('admin123')  # Initial password that should be changed
+                db.session.add(admin)
+                db.session.commit()
+                app.logger.info('Created initial admin user')
+        except Exception as e:
+            app.logger.error(f'Error during initialization: {str(e)}')
+            raise
 
     return app

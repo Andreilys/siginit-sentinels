@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Intelligence Map</h5>
+            </div>
+            <div class="card-body">
+                <div id="map" style="height: 500px;"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title">Recent Alerts</h5>
+            </div>
+            <div class="card-body">
+                <div id="alerts-container">
+                    {% for alert in alerts %}
+                    <div class="alert alert-{{ 'danger' if alert.priority == 1 else 'warning' if alert.priority == 2 else 'info' }}">
+                        <h6>{{ alert.title }}</h6>
+                        <small>{{ alert.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Threat Level</h5>
+            </div>
+            <div class="card-body">
+                <div class="progress">
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: {{ threat_level }}%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/map.js') }}"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

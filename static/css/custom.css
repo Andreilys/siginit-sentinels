@@ -1,0 +1,58 @@
+/* Military theme customization */
+:root {
+    --military-green: #1a2f1a;
+    --alert-red: #ff3b3b;
+}
+
+body {
+    background-color: var(--bs-dark);
+    color: var(--bs-light);
+}
+
+.card {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: var(--bs-dark);
+}
+
+.card-header {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Alert styling */
+.alert {
+    border-left-width: 4px;
+}
+
+.alert-danger {
+    border-left-color: var(--alert-red);
+}
+
+/* Map customization */
+.leaflet-container {
+    background-color: var(--military-green);
+}
+
+/* Threat level indicator */
+.progress {
+    height: 2rem;
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+.progress-bar {
+    transition: width 0.5s ease-in-out;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}

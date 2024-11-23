@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Active Alerts</h5>
+                <div class="btn-group">
+                    <button class="btn btn-outline-secondary btn-sm" data-filter="all">All</button>
+                    <button class="btn btn-outline-danger btn-sm" data-filter="high">High Priority</button>
+                    <button class="btn btn-outline-warning btn-sm" data-filter="medium">Medium Priority</button>
+                    <button class="btn btn-outline-info btn-sm" data-filter="low">Low Priority</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover">
+                        <thead>
+                            <tr>
+                                <th>Priority</th>
+                                <th>Title</th>
+                                <th>Description</th>
+                                <th>Time</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="alerts-table">
+                            {% for alert in alerts %}
+                            <tr class="priority-{{ alert.priority }}">
+                                <td>
+                                    <span class="badge bg-{{ 'danger' if alert.priority == 1 else 'warning' if alert.priority == 2 else 'info' }}">
+                                        {{ alert.priority }}
+                                    </span>
+                                </td>
+                                <td>{{ alert.title }}</td>
+                                <td>{{ alert.description[:100] }}...</td>
+                                <td>{{ alert.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>
+                                    <span class="badge bg-{{ 'secondary' if alert.status == 'new' else 'primary' if alert.status == 'acknowledged' else 'success' }}">
+                                        {{ alert.status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        <button class="btn btn-sm btn-outline-primary" onclick="acknowledgeAlert({{ alert.id }})">
+                                            Acknowledge
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-success" onclick="resolveAlert({{ alert.id }})">
+                                            Resolve
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function acknowledgeAlert(alertId) {
+    fetch(`/api/alerts/${alertId}/acknowledge`, { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
+        });
+}
+
+function resolveAlert(alertId) {
+    fetch(`/api/alerts/${alertId}/resolve`, { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            }
+        });
+}
+
+document.querySelectorAll('[data-filter]').forEach(button => {
+    button.addEventListener('click', (e) => {
+        const filter = e.target.dataset.filter;
+        const rows = document.querySelectorAll('#alerts-table tr');
+        
+        rows.forEach(row => {
+            if (filter === 'all') {
+                row.style.display = '';
+            } else {
+                const priority = row.className.includes('priority-1') ? 'high' :
+                               row.className.includes('priority-2') ? 'medium' : 'low';
+                row.style.display = priority === filter ? '' : 'none';
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

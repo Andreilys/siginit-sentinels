@@ -84,24 +84,68 @@
 {% endblock %}
 
 {% block scripts %}
+<!-- Intel Details Modal -->
+<div class="modal fade" id="intelModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark">
+            <div class="modal-header">
+                <h5 class="modal-title">Intelligence Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="intelModalContent">
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 function acknowledgeAlert(alertId) {
-    fetch(`/api/alerts/${alertId}/acknowledge`, { method: 'POST' })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
-            }
-        });
+    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    fetch(`/api/alerts/${alertId}/acknowledge`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-Token': token
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        }
+    });
 }
 
 function resolveAlert(alertId) {
-    fetch(`/api/alerts/${alertId}/resolve`, { method: 'POST' })
+    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    fetch(`/api/alerts/${alertId}/resolve`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-Token': token
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        }
+    });
+}
+
+function showIntelDetails(alertId) {
+    fetch(`/api/alerts/${alertId}/details`)
         .then(response => response.json())
         .then(data => {
-            if (data.success) {
-                location.reload();
-            }
+            // Create modal with intel details
+            const modal = new bootstrap.Modal(document.getElementById('intelModal'));
+            document.getElementById('intelModalContent').innerHTML = `
+                <h5>Intelligence Details</h5>
+                <p><strong>Source:</strong> ${data.intel.source}</p>
+                <p><strong>Content:</strong> ${data.intel.content}</p>
+                <p><strong>Credibility Score:</strong> ${data.intel.credibility_score}</p>
+                <p><strong>Language:</strong> ${data.intel.language}</p>
+                <p><strong>Location:</strong> ${data.intel.latitude}, ${data.intel.longitude}</p>
+            `;
+            modal.show();
         });
 }
 

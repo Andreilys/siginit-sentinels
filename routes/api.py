@@ -42,6 +42,38 @@ def acknowledge_alert(alert_id):
     db.session.commit()
     return jsonify({'success': True})
 
+@api_bp.route('/alerts/<int:alert_id>/resolve', methods=['POST'])
+@login_required
+def resolve_alert(alert_id):
+    alert = Alert.query.get_or_404(alert_id)
+    alert.status = 'resolved'
+    db.session.commit()
+    return jsonify({'success': True})
+
+@api_bp.route('/alerts/<int:alert_id>/details')
+@login_required
+def get_alert_details(alert_id):
+    alert = Alert.query.get_or_404(alert_id)
+    intel = IntelligenceData.query.get(alert.intel_id)
+    return jsonify({
+        'alert': {
+            'id': alert.id,
+            'title': alert.title,
+            'description': alert.description,
+            'priority': alert.priority,
+            'status': alert.status
+        },
+        'intel': {
+            'source': intel.source,
+            'content': intel.content,
+            'timestamp': intel.timestamp.isoformat(),
+            'credibility_score': intel.credibility_score,
+            'language': intel.language,
+            'latitude': intel.latitude,
+            'longitude': intel.longitude
+        } if intel else None
+    })
+
 def get_priority(intel_data):
     # Determine priority based on credibility score
     if intel_data.credibility_score >= 0.8:

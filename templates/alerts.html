@@ -99,7 +99,16 @@
 </div>
 
 <script>
-<script>
+// Initialize Socket.IO
+let socket;
+document.addEventListener('DOMContentLoaded', function() {
+    socket = io({
+        reconnection: true,
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000
+    });
+});
+
 function generateMediaPreview(intel) {
     if (!intel || !intel.media_type || !intel.media_url) {
         return '<div class="alert alert-info">No media content available</div>';

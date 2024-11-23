@@ -1,58 +1,45 @@
-/* Military theme customization */
+/* Custom theme variables - using Bootstrap's CSS variable system */
 :root {
-    --military-green: #1a2f1a;
-    --alert-red: #ff3b3b;
+    --intel-accent: var(--bs-primary);
+    --intel-alert: var(--bs-danger);
 }
 
-body {
-    background-color: var(--bs-dark);
-    color: var(--bs-light);
-}
-
-.card {
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background-color: var(--bs-dark);
-}
-
-.card-header {
-    background-color: rgba(0, 0, 0, 0.2);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* Alert styling */
+/* Essential overrides only - minimize custom styles */
 .alert {
     border-left-width: 4px;
 }
 
 .alert-danger {
-    border-left-color: var(--alert-red);
+    border-left-color: var(--intel-alert);
 }
 
-/* Map customization */
+/* Map customization - required for proper display */
 .leaflet-container {
-    background-color: var(--military-green);
+    background-color: var(--bs-dark);
+    color: var(--bs-light);
 }
 
-/* Threat level indicator */
+/* Threat level indicator - smooth transitions */
 .progress {
     height: 2rem;
-    background-color: rgba(0, 0, 0, 0.2);
 }
 
 .progress-bar {
-    transition: width 0.5s ease-in-out;
+    transition: width 0.3s ease-in-out;
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-    width: 8px;
-}
+/* Optional: Styled scrollbar for better UX */
+@media (min-width: 768px) {
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
 
-::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.1);
-}
+    ::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.1);
+    }
 
-::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 4px;
+    ::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 4px;
+    }
 }

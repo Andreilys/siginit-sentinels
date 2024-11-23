@@ -1014,9 +1014,12 @@ dependencies = [
     { name = "gevent" },
     { name = "langdetect" },
     { name = "psycopg2-binary" },
+    { name = "python-socketio" },
     { name = "spacy" },
+    { name = "sqlalchemy" },
     { name = "telethon" },
     { name = "transformers" },
+    { name = "werkzeug" },
 ]
 
 [package.metadata]
@@ -1032,9 +1035,12 @@ requires-dist = [
     { name = "gevent", specifier = ">=24.11.1" },
     { name = "langdetect", specifier = ">=1.0.9" },
     { name = "psycopg2-binary", specifier = ">=2.9.10" },
+    { name = "python-socketio" },
     { name = "spacy", specifier = ">=3.8.2" },
+    { name = "sqlalchemy" },
     { name = "telethon", specifier = ">=1.38.1" },
     { name = "transformers", specifier = ">=4.46.3" },
+    { name = "werkzeug" },
 ]
 
 [[package]]

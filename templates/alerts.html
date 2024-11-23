@@ -35,8 +35,25 @@
                                     </span>
                                 </td>
                                 <td>{{ alert.title }}</td>
-                                <td>{{ alert.description[:100] }}...</td>
-                                <td>{{ alert.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>
+                                    <div class="alert-details">
+                                        <p class="mb-2">{{ alert.description }}</p>
+                                        {% if alert.intel %}
+                                            <div class="intel-details mt-2">
+                                                <small class="text-muted">
+                                                    <strong>Source:</strong> {{ alert.intel.source }}<br>
+                                                    <strong>Credibility Score:</strong> {{ "%.2f"|format(alert.intel.credibility_score) }}<br>
+                                                    <strong>Language:</strong> {{ alert.intel.language|upper }}
+                                                </small>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="timestamp" data-timestamp="{{ alert.timestamp.isoformat() }}">
+                                        {{ alert.timestamp.strftime('%Y-%m-%d %H:%M') }}
+                                    </div>
+                                </td>
                                 <td>
                                     <span class="badge bg-{{ 'secondary' if alert.status == 'new' else 'primary' if alert.status == 'acknowledged' else 'success' }}">
                                         {{ alert.status }}
@@ -49,6 +66,9 @@
                                         </button>
                                         <button class="btn btn-sm btn-outline-success" onclick="resolveAlert({{ alert.id }})">
                                             Resolve
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-info" onclick="showIntelDetails({{ alert.id }})">
+                                            Details
                                         </button>
                                     </div>
                                 </td>

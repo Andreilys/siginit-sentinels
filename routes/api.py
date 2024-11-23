@@ -17,7 +17,11 @@ def get_intel_points():
         'latitude': point.latitude,
         'longitude': point.longitude,
         'title': point.source,
-        'priority': get_priority(point)
+        'source': point.source,
+        'timestamp': point.timestamp.isoformat(),
+        'priority': get_priority(point),
+        'credibility_score': point.credibility_score,
+        'content': point.content
     } for point in intel_data])
 
 @api_bp.route('/threat-level')

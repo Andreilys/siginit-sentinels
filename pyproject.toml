@@ -18,4 +18,14 @@ dependencies = [
     "flask-cors>=5.0.0",
     "gevent>=24.11.1",
     "flask-wtf>=1.2.2",
+    "werkzeug",
+    "sqlalchemy",
+    "python-socketio",
+    "en-core-web-sm",
+    "ru-core-news-sm",
+    "python-dotenv",
 ]
+
+[tool.uv.sources]
+en-core-web-sm = { url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1.tar.gz" }
+ru-core-news-sm = { url = "https://github.com/explosion/spacy-models/releases/download/ru_core_news_sm-3.7.1/ru_core_news_sm-3.7.1.tar.gz" }

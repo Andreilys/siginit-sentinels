@@ -15,8 +15,19 @@ def dashboard():
 @main_bp.route('/alerts')
 @login_required
 def alerts():
-    alerts = Alert.query.order_by(Alert.timestamp.desc()).all()
-    return render_template('alerts.html', alerts=alerts)
+    alerts = Alert.query\
+        .join(IntelligenceData, Alert.intel_id == IntelligenceData.id)\
+        .add_entity(IntelligenceData)\
+        .order_by(Alert.timestamp.desc())\
+        .all()
+    
+    # Combine alert and intel data
+    alert_data = []
+    for alert, intel in alerts:
+        alert.intel = intel
+        alert_data.append(alert)
+    
+    return render_template('alerts.html', alerts=alert_data)
 
 @main_bp.route('/reports')
 @login_required

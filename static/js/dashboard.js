@@ -13,6 +13,9 @@ function initDashboard() {
     
     // Set up alert notifications
     setupNotifications();
+
+    // Initialize timeline
+    initTimeline();
 }
 
 function initRealTimeUpdates() {
@@ -118,9 +121,67 @@ function setupNotifications() {
     }
 }
 
-// Export functions for use in other modules
-export {
+// Timeline functionality
+function initTimeline() {
+    fetch('/api/intel-points')
+        .then(response => response.json())
+        .then(data => {
+            // Sort data by timestamp in descending order
+            data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            updateTimeline(data);
+        });
+}
+
+function updateTimeline(events) {
+    const timelineContainer = document.getElementById('intel-timeline');
+    if (!timelineContainer) return;
+
+    const timelineHtml = events.map(event => `
+        <div class="timeline-item list-group-item list-group-item-action">
+            <div class="d-flex w-100 justify-content-between">
+                <h6 class="mb-1">${event.source}</h6>
+                <small class="text-muted">${formatDate(event.timestamp)}</small>
+            </div>
+            <p class="mb-1">${event.content ? event.content.substring(0, 150) + '...' : 'No content available'}</p>
+            <small class="text-muted">
+                Priority: ${getPriorityBadge(event.priority)} | 
+                Credibility: ${event.credibility_score.toFixed(2)}
+            </small>
+        </div>
+    `).join('');
+
+    timelineContainer.innerHTML = timelineHtml;
+}
+
+function formatDate(timestamp) {
+    const date = new Date(timestamp);
+    return new Intl.DateTimeFormat('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    }).format(date);
+}
+
+function getPriorityBadge(priority) {
+    const classes = {
+        1: 'danger',
+        2: 'warning',
+        3: 'info'
+    };
+    return `<span class="badge bg-${classes[priority] || 'secondary'}">${priority}</span>`;
+}
+
+// Socket.IO event handler for timeline updates
+socket.on('intel_update', function(data) {
+    initTimeline(); // Refresh timeline with new data
+});
+
+// Make functions available globally
+window.dashboardUtils = {
     updateThreatLevel,
     updateStatistics,
-    updateAlerts
+    updateAlerts,
+    initTimeline
 };

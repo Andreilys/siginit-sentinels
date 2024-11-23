@@ -52,16 +52,38 @@
 
 {% block scripts %}
 <script>
-function handleLogin(event) {
-    const form = event.target;
-    const button = form.querySelector('#loginButton');
-    const spinner = button.querySelector('.spinner-border');
-    const buttonText = button.querySelector('.button-text');
-    
-    // Show loading state
-    spinner.classList.remove('d-none');
-    buttonText.textContent = 'Authenticating...';
-    button.disabled = true;
-}
+document.addEventListener('DOMContentLoaded', function() {
+    const loginForm = document.getElementById('loginForm');
+    const loginButton = document.getElementById('loginButton');
+    const spinner = loginButton.querySelector('.spinner-border');
+    const buttonText = loginButton.querySelector('.button-text');
+
+    loginForm.addEventListener('submit', function(event) {
+        // Show loading state
+        spinner.classList.remove('d-none');
+        buttonText.textContent = 'Authenticating...';
+        loginButton.disabled = true;
+
+        // Clear any existing error messages
+        const existingErrors = document.querySelectorAll('.alert-danger');
+        existingErrors.forEach(error => error.remove());
+
+        // Enable form submission
+        return true;
+    });
+
+    // Handle form errors
+    {% if form.errors %}
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'alert alert-danger mt-3';
+        errorDiv.textContent = 'Please correct the errors in the form.';
+        loginForm.appendChild(errorDiv);
+        
+        // Reset button state
+        spinner.classList.add('d-none');
+        buttonText.textContent = 'Login';
+        loginButton.disabled = false;
+    {% endif %}
+});
 </script>
 {% endblock %}

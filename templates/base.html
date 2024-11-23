@@ -5,20 +5,43 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Military Intelligence Platform</title>
     
-    <!-- Core CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" onerror="handleCSSError(this)">
+    <!-- Core CSS with error handling -->
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" 
+          rel="stylesheet" 
+          onerror="handleResourceError(this, 'Core styles failed to load')" 
+          crossorigin="anonymous">
     
-    <!-- Additional CSS -->
-    <link href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" rel="stylesheet" onerror="handleCSSError(this)">
-    <link href="{{ url_for('static', filename='css/custom.css') }}" rel="stylesheet" onerror="handleCSSError(this)">
+    <!-- Additional CSS with error handling -->
+    {% if current_user.is_authenticated %}
+    <link href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" 
+          rel="stylesheet" 
+          onerror="handleResourceError(this, 'Map styles failed to load')"
+          crossorigin="anonymous">
+    {% endif %}
+    
+    <link href="{{ url_for('static', filename='css/custom.css') }}" 
+          rel="stylesheet" 
+          onerror="handleResourceError(this, 'Custom styles failed to load')">
     
     <script>
-        function handleCSSError(link) {
-            console.error('Failed to load CSS:', link.href);
+        // Enhanced error handling for resources
+        function handleResourceError(resource, message) {
+            console.error(`Resource failed to load:`, resource.href);
+            const errorContainer = document.getElementById('resource-errors') || document.createElement('div');
+            errorContainer.id = 'resource-errors';
+            errorContainer.className = 'container mt-2';
+            
             const errorDiv = document.createElement('div');
-            errorDiv.className = 'alert alert-warning';
-            errorDiv.textContent = 'Some styles failed to load. The application may not display correctly.';
-            document.body.insertBefore(errorDiv, document.body.firstChild);
+            errorDiv.className = 'alert alert-warning alert-dismissible fade show';
+            errorDiv.innerHTML = `
+                <strong>Loading Error:</strong> ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            errorContainer.appendChild(errorDiv);
+            if (!document.getElementById('resource-errors')) {
+                document.body.insertBefore(errorContainer, document.body.firstChild);
+            }
         }
     </script>
 </head>
@@ -65,33 +88,48 @@
     </div>
 
     <!-- Core dependencies -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    
-    <!-- Load Socket.IO only for authenticated pages -->
-    {% if current_user.is_authenticated %}
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const script = document.createElement('script');
-            script.src = 'https://cdn.socket.io/4.0.1/socket.io.min.js';
-            script.onerror = function() {
-                console.error('Failed to load Socket.IO');
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'alert alert-warning';
-                errorDiv.textContent = 'Real-time updates are currently unavailable.';
-                document.body.insertBefore(errorDiv, document.body.firstChild);
-            };
-            script.onload = function() {
-                const websocketScript = document.createElement('script');
-                websocketScript.src = "{{ url_for('static', filename='js/websocket.js') }}";
-                document.body.appendChild(websocketScript);
-            };
-            document.body.appendChild(script);
-        });
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" 
+            async 
+            onerror="handleResourceError(this, 'Core functionality might be limited')"></script>
+
+    {% if current_user.is_authenticated and request.endpoint != 'auth.login' %}
+        <!-- Load map script only for authenticated pages that need it -->
+        {% if request.endpoint in ['main.dashboard', 'main.reports'] %}
+        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" 
+                async 
+                onerror="handleResourceError(this, 'Map functionality might be limited')"></script>
+        {% endif %}
+
+        <!-- Load Socket.IO only for pages that need real-time updates -->
+        {% if request.endpoint in ['main.dashboard', 'main.alerts'] %}
+        <script>
+            // Async loading of Socket.IO
+            window.addEventListener('load', function() {
+                const script = document.createElement('script');
+                script.src = 'https://cdn.socket.io/4.0.1/socket.io.min.js';
+                script.async = true;
+                script.onerror = function() {
+                    handleResourceError(this, 'Real-time updates are currently unavailable');
+                };
+                script.onload = function() {
+                    // Load websocket handling script
+                    const websocketScript = document.createElement('script');
+                    websocketScript.src = "{{ url_for('static', filename='js/websocket.js') }}";
+                    websocketScript.onerror = function() {
+                        handleResourceError(this, 'Real-time functionality might be limited');
+                    };
+                    document.body.appendChild(websocketScript);
+                };
+                document.body.appendChild(script);
+            });
+        </script>
+        {% endif %}
     {% endif %}
-    
+
     <!-- Custom scripts -->
     {% block scripts %}{% endblock %}
+
+    <!-- Error container for resource loading errors -->
+    <div id="resource-errors" class="container mt-2"></div>
 </body>
 </html>

@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 from flask import Flask, render_template, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO
@@ -24,9 +25,9 @@ login_manager = LoginManager()
 def create_app():
     app = Flask(__name__)
     
-    # Configuration
+    # Enhanced Configuration
     app.config.update(
-        SECRET_KEY=os.environ.get("FLASK_SECRET_KEY", "a secret key"),
+        SECRET_KEY=os.environ.get("FLASK_SECRET_KEY", os.urandom(24).hex()),
         SQLALCHEMY_DATABASE_URI=os.environ.get("DATABASE_URL"),
         SQLALCHEMY_ENGINE_OPTIONS={
             "pool_recycle": 300,
@@ -34,21 +35,52 @@ def create_app():
             "pool_timeout": 30,
             "pool_size": 30,
             "max_overflow": 0,
+            "connect_args": {"connect_timeout": 10}
         },
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
         PERMANENT_SESSION_LIFETIME=1800,  # 30 minutes
         SESSION_COOKIE_SECURE=True,
-        SESSION_COOKIE_HTTPONLY=True
+        SESSION_COOKIE_HTTPONLY=True,
+        SESSION_COOKIE_SAMESITE='Lax',
+        REMEMBER_COOKIE_SECURE=True,
+        REMEMBER_COOKIE_HTTPONLY=True,
+        REMEMBER_COOKIE_DURATION=timedelta(days=14)
     )
     
-    # Initialize extensions
+    # Configure session interface for better security
+    app.config['SESSION_TYPE'] = 'filesystem'
+    app.config['SESSION_FILE_DIR'] = os.path.join(os.getcwd(), 'flask_session')
+    app.config['SESSION_FILE_THRESHOLD'] = 500  # Maximum number of sessions stored on disk
+    
+    # Enhanced database initialization and connection handling
     try:
         db.init_app(app)
         with app.app_context():
-            db.engine.connect()
+            # Test database connection with timeout
+            connection = db.engine.connect()
+            connection.execute(db.text('SELECT 1'))
+            connection.close()
             app.logger.info("Database connection successful")
+            
+            # Set up connection pooling monitor
+            @app.before_request
+            def check_db_connection():
+                try:
+                    db.session.execute(db.text('SELECT 1'))
+                except Exception as e:
+                    app.logger.error(f"Database connection lost: {str(e)}")
+                    db.session.rollback()
+                    return "Database connection error. Please try again.", 503
+                
+            @app.teardown_request
+            def cleanup_db_session(exc=None):
+                if exc:
+                    db.session.rollback()
+                    app.logger.error(f"Request error occurred: {str(exc)}")
+                db.session.remove()
+                
     except Exception as e:
-        app.logger.error(f"Database connection failed: {str(e)}")
+        app.logger.error(f"Database initialization failed: {str(e)}", exc_info=True)
         raise
         
     socketio.init_app(app)

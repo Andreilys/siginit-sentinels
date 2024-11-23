@@ -1,8 +1,15 @@
 from datetime import datetime
+import enum
+from sqlalchemy.types import JSON
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from app import db
+class MediaType(enum.Enum):
+    text = 'text'
+    image = 'image'
+    video = 'video'
+    audio = 'audio'
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -27,6 +34,9 @@ class IntelligenceData(db.Model):
     latitude = db.Column(db.Float)
     longitude = db.Column(db.Float)
     verified = db.Column(db.Boolean, default=False)
+    media_type = db.Column(db.Enum(MediaType), default=MediaType.text)
+    media_url = db.Column(db.String(500))
+    media_metadata = db.Column(JSON)
 
 class Alert(db.Model):
     id = db.Column(db.Integer, primary_key=True)

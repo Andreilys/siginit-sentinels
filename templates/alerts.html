@@ -99,6 +99,46 @@
 </div>
 
 <script>
+<script>
+function generateMediaPreview(intel) {
+    if (!intel || !intel.media_type || !intel.media_url) {
+        return '<div class="alert alert-info">No media content available</div>';
+    }
+
+    switch (intel.media_type) {
+        case 'image':
+            return `
+                <div class="image-preview">
+                    <img src="${intel.media_url}" 
+                         class="img-fluid rounded" 
+                         alt="Intelligence Image"
+                         onerror="this.onerror=null; this.src='/static/images/image-fallback.svg';">
+                </div>`;
+        case 'video':
+            return `
+                <div class="video-preview">
+                    <video class="w-100 rounded" controls>
+                        <source src="${intel.media_url}" type="video/mp4">
+                        Your browser does not support video playback.
+                    </video>
+                </div>`;
+        case 'audio':
+            return `
+                <div class="audio-preview">
+                    <audio class="w-100" controls>
+                        <source src="${intel.media_url}" type="audio/mpeg">
+                        Your browser does not support audio playback.
+                    </audio>
+                </div>`;
+        case 'text':
+        default:
+            return `
+                <div class="text-preview">
+                    <pre class="bg-dark text-light p-3 rounded">${intel.content || 'No text content available'}</pre>
+                </div>`;
+    }
+}
+</script>
 function acknowledgeAlert(alertId) {
     const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     fetch(`/api/alerts/${alertId}/acknowledge`, {
@@ -137,13 +177,26 @@ function showIntelDetails(alertId) {
         .then(data => {
             // Create modal with intel details
             const modal = new bootstrap.Modal(document.getElementById('intelModal'));
+            const mediaPreview = generateMediaPreview(data.intel);
             document.getElementById('intelModalContent').innerHTML = `
                 <h5>Intelligence Details</h5>
-                <p><strong>Source:</strong> ${data.intel.source}</p>
-                <p><strong>Content:</strong> ${data.intel.content}</p>
-                <p><strong>Credibility Score:</strong> ${data.intel.credibility_score}</p>
-                <p><strong>Language:</strong> ${data.intel.language}</p>
-                <p><strong>Location:</strong> ${data.intel.latitude}, ${data.intel.longitude}</p>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Source:</strong> ${data.intel.source}</p>
+                        <p><strong>Content:</strong> ${data.intel.content}</p>
+                        <p><strong>Credibility Score:</strong> ${data.intel.credibility_score}</p>
+                        <p><strong>Language:</strong> ${data.intel.language}</p>
+                        <p><strong>Location:</strong> ${data.intel.latitude}, ${data.intel.longitude}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="media-preview mb-3">
+                            ${mediaPreview}
+                        </div>
+                        <div class="media-metadata small">
+                            ${data.intel.media_metadata ? JSON.stringify(data.intel.media_metadata, null, 2) : 'No metadata available'}
+                        </div>
+                    </div>
+                </div>
             `;
             modal.show();
         });

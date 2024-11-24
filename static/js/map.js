@@ -15,9 +15,16 @@ function initMap() {
 }
 
 function getPriorityColor(priority) {
-    return priority === 1 ? 'red' :
-           priority === 2 ? 'orange' :
-           'yellow';
+    switch(priority) {
+        case 1:
+            return '#ff0000';  // High priority - Red
+        case 2:
+            return '#ffa500';  // Medium priority - Orange
+        case 3:
+            return '#ffff00';  // Low priority - Yellow
+        default:
+            return '#808080';  // Unknown - Gray
+    }
 }
 
 function addMarker(point) {

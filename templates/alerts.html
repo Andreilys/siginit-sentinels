@@ -99,15 +99,7 @@
 </div>
 
 <script>
-// Socket.IO initialization
-let socket;
-document.addEventListener('DOMContentLoaded', function() {
-    socket = io({
-        reconnection: true,
-        reconnectionAttempts: 5,
-        reconnectionDelay: 1000
-    });
-});
+// Socket.IO is initialized in base.html
 
 // Utility functions
 function generateMediaPreview(intel) {

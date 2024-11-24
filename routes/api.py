@@ -33,10 +33,10 @@ def get_intel_points():
         'priority': get_priority(point),
         'credibility_score': point.credibility_score,
         'content': point.content,
-        'intel_type': point.intel_type.name,
-        'intel_subtype': point.intel_subtype,
-        'source_reliability': point.source_reliability.name,
-        'info_credibility': point.info_credibility.name
+        'intel_type': point.intel_type.name if point.intel_type else None,
+        'intel_subtype': point.intel_subtype or 'Unknown',
+        'source_reliability': point.source_reliability.name if point.source_reliability else None,
+        'info_credibility': point.info_credibility.name if point.info_credibility else None
     } for point in intel_data])
 
 @api_bp.route('/threat-level')

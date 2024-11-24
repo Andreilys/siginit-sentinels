@@ -59,41 +59,32 @@ function updateStatistics() {
     fetch('/api/statistics')
         .then(response => response.json())
         .then(data => {
-            // Update priority counts
-            document.getElementById('high-priority-count').textContent = data.highPriority;
-            document.getElementById('medium-priority-count').textContent = data.mediumPriority;
-            document.getElementById('low-priority-count').textContent = data.lowPriority;
-            
-            // Update intel type breakdown
             const breakdownDiv = document.getElementById('intel-type-breakdown');
             breakdownDiv.innerHTML = ''; // Clear existing content
             
-            Object.entries(data.intelTypes).forEach(([type, info]) => {
+            Object.entries(data.intelTypes).forEach(([type, stats]) => {
                 const typeDiv = document.createElement('div');
                 typeDiv.className = 'mb-3';
                 
-                // Add type header with total count
+                const scoreColor = stats.average_score >= 80 ? 'success' :
+                                 stats.average_score >= 60 ? 'primary' :
+                                 stats.average_score >= 40 ? 'warning' : 'danger';
+                
                 typeDiv.innerHTML = `
                     <div class="d-flex justify-content-between mb-2">
                         <span class="fw-bold">${type}:</span>
-                        <span class="badge bg-primary">${info.total}</span>
+                        <span class="badge bg-${scoreColor}">${stats.average_score.toFixed(1)}%</span>
+                    </div>
+                    <div class="small text-muted ms-3">
+                        Based on ${stats.count} reports
+                        <br>Range: ${stats.min_score.toFixed(1)}% - ${stats.max_score.toFixed(1)}%
                     </div>
                 `;
                 
-                // Add subtypes
-                const subtypesDiv = document.createElement('div');
-                subtypesDiv.className = 'ms-3';
-                Object.entries(info.subtypes).forEach(([subtype, count]) => {
-                    subtypesDiv.innerHTML += `
-                        <div class="d-flex justify-content-between mb-1">
-                            <span class="small">${subtype}:</span>
-                            <span class="badge bg-secondary">${count}</span>
-                        </div>
-                    `;
-                });
-                typeDiv.appendChild(subtypesDiv);
                 breakdownDiv.appendChild(typeDiv);
             });
+        });
+}
             
             // Add reliability distribution
             const reliabilityDiv = document.createElement('div');

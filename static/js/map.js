@@ -41,6 +41,74 @@ function addMarker(point) {
     marker.addTo(map);
 }
 
+function loadIntelPoints() {
+    fetch('/api/intel-points')
+        .then(response => response.json())
+        .then(data => {
+            clearMapMarkers();
+            data.forEach(point => addMarker(point));
+        });
+}
+
+function clearMapMarkers() {
+    markers.forEach(marker => marker.remove());
+    markers = [];
+}
+
+function setupFilters() {
+    const typeSelect = document.getElementById('intel-type-filter');
+    const subtypeSelect = document.getElementById('intel-subtype-filter');
+    
+    // Disable subtype initially
+    subtypeSelect.disabled = true;
+    
+    typeSelect.addEventListener('change', function(e) {
+        const selectedType = e.target.value;
+        subtypeSelect.innerHTML = '<option value="">All Subtypes</option>';
+        subtypeSelect.disabled = !selectedType;
+        
+        if (selectedType) {
+            const subtypes = {
+                'IMINT': ['Satellite imagery', 'Drone surveillance', 'Aerial photography', 'Ground-based photography'],
+                'SIGINT': ['Radio intercepts', 'Communications monitoring', 'Electronic signals', 'Encryption analysis'],
+                'HUMINT': ['Spies and covert operatives', 'Informants', 'Diplomatic sources', 'Prisoner interrogations'],
+                'OSINT': ['Social media monitoring', 'News media and publications', 'Academic research', 'Public forums and websites'],
+                'CYBERINT': ['Malware analysis', 'Dark web monitoring', 'Network traffic analysis', 'Threat intelligence feeds']
+            };
+            
+            subtypes[selectedType].forEach(subtype => {
+                const option = document.createElement('option');
+                option.value = subtype;
+                option.textContent = subtype;
+                subtypeSelect.appendChild(option);
+            });
+        }
+        
+        filterIntelPoints();
+    });
+
+    // Add event listeners for other filters
+    document.getElementById('intel-subtype-filter').addEventListener('change', filterIntelPoints);
+    document.getElementById('source-reliability-filter').addEventListener('change', filterIntelPoints);
+    document.getElementById('info-credibility-filter').addEventListener('change', filterIntelPoints);
+}
+
+function filterIntelPoints() {
+    const filters = {
+        type: document.getElementById('intel-type-filter').value,
+        subtype: document.getElementById('intel-subtype-filter').value,
+        reliability: document.getElementById('source-reliability-filter').value,
+        credibility: document.getElementById('info-credibility-filter').value
+    };
+    
+    fetch('/api/intel-points?' + new URLSearchParams(filters))
+        .then(response => response.json())
+        .then(data => {
+            clearMapMarkers();
+            data.forEach(point => addMarker(point));
+        });
+}
+
 function updateMap(coordinates) {
     addMarker({
         latitude: coordinates.lat,

@@ -104,27 +104,23 @@
         <!-- Load Socket.IO only for pages that need real-time updates -->
         {% if request.endpoint in ['main.dashboard', 'main.alerts'] %}
         <script>
-            // Async loading of Socket.IO
-            window.addEventListener('load', function() {
-                const socketScript = document.createElement('script');
-                socketScript.src = 'https://cdn.socket.io/4.0.1/socket.io.min.js';
-                socketScript.async = true;
-                socketScript.onerror = function() {
-                    handleResourceError(this, 'Real-time updates are currently unavailable');
-                };
-                document.body.appendChild(socketScript);
-
-                // Wait for Socket.IO to load before loading websocket.js
-                socketScript.onload = function() {
-                    const websocketScript = document.createElement('script');
-                    websocketScript.src = "{{ url_for('static', filename='js/websocket.js') }}";
-                    websocketScript.defer = true;
-                    websocketScript.onerror = function() {
-                        handleResourceError(this, 'Real-time functionality might be limited');
-                    };
-                    document.body.appendChild(websocketScript);
-                };
+            let socket;
+            document.addEventListener('DOMContentLoaded', function() {
+                socket = io({
+                    reconnection: true,
+                    reconnectionAttempts: 5,
+                    reconnectionDelay: 1000
+                });
             });
+
+            // Load websocket.js after Socket.IO is initialized
+            const websocketScript = document.createElement('script');
+            websocketScript.src = "{{ url_for('static', filename='js/websocket.js') }}";
+            websocketScript.defer = true;
+            websocketScript.onerror = function() {
+                handleResourceError(this, 'Real-time functionality might be limited');
+            };
+            document.body.appendChild(websocketScript);
         </script>
         {% endif %}
     {% endif %}

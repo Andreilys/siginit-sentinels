@@ -32,9 +32,9 @@ function setupViewControls() {
             });
             this.classList.add('active');
             
-            // Switch view
+            // Switch view and force refresh data
             currentView = view;
-            updateVisualization();
+            loadIntelPoints(); // This will trigger updateVisualization with fresh data
         });
     });
 }
@@ -42,12 +42,17 @@ function setupViewControls() {
 function updateVisualization() {
     if (currentView === 'heatmap') {
         markerLayer.clearLayers();
-        initHeatmap(window.intelData);
+        if (window.intelData && window.intelData.length > 0) {
+            initHeatmap(window.intelData);
+        }
     } else {
         if (heatLayer) {
             map.removeLayer(heatLayer);
+            heatLayer = null;
         }
-        loadIntelPoints();
+        if (window.intelData && window.intelData.length > 0) {
+            window.intelData.forEach(point => addMarker(point));
+        }
     }
 }
 

@@ -25,6 +25,7 @@ dependencies = [
     "python-dotenv>=1.0.0",
     "gevent-websocket>=0.10.1",
     "eventlet>=0.33.3",
+    "flask-migrate>=4.0.7",
 ]
 
 [tool.uv.sources]

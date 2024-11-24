@@ -6,6 +6,7 @@ from flask_socketio import SocketIO
 from flask_login import LoginManager
 from flask_cors import CORS
 from flask_wtf.csrf import CSRFProtect
+from flask_migrate import Migrate
 from sqlalchemy.orm import DeclarativeBase
 
 class Base(DeclarativeBase):
@@ -14,6 +15,7 @@ class Base(DeclarativeBase):
 csrf = CSRFProtect()
 
 db = SQLAlchemy(model_class=Base)
+migrate = Migrate()
 socketio = SocketIO(
     cors_allowed_origins="*",
     async_mode='gevent',

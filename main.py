@@ -1,4 +1,6 @@
+from flask.cli import FlaskGroup
 from app import create_app, socketio, db
+from flask_migrate import Migrate, upgrade
 import logging
 
 app = create_app()

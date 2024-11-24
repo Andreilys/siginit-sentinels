@@ -1,0 +1,73 @@
+Here’s a design for a two-tier filter system for a dashboard, combining intelligence types with their corresponding sub-types, and integrating a filter dropdown based on the Admiralty/NATO System for intelligence evaluation.
+
+Two-Tier Filter System Design
+Tier 1: Primary Filter
+The first dropdown menu filters by the broad intelligence types:
+
+IMINT (Imagery Intelligence)
+SIGINT (Signals Intelligence)
+HUMINT (Human Intelligence)
+OSINT (Open Source Intelligence)
+CYBERINT (Cyber Intelligence)
+Tier 2: Sub-Type Filter
+Each intelligence type has corresponding sub-categories:
+
+IMINT (Imagery Intelligence)
+
+Satellite imagery
+Drone surveillance
+Aerial photography
+Ground-based photography
+SIGINT (Signals Intelligence)
+
+Radio intercepts
+Communications monitoring (e.g., phone tapping)
+Electronic signals (e.g., radar detection)
+Encryption analysis
+HUMINT (Human Intelligence)
+
+Spies and covert operatives
+Informants
+Diplomatic sources
+Prisoner interrogations
+OSINT (Open Source Intelligence)
+
+Social media monitoring
+News media and publications
+Academic research
+Public forums and websites
+CYBERINT (Cyber Intelligence)
+
+Malware analysis
+Dark web monitoring
+Network traffic analysis
+Threat intelligence feeds
+Admiralty/NATO System Filter Design
+The Admiralty System evaluates intelligence based on reliability of the source and credibility of the information. You can use a dropdown with the following options for additional filtering:
+
+Source Reliability (Rating A–F):
+A: Completely reliable
+B: Usually reliable
+C: Fairly reliable
+D: Not usually reliable
+E: Unreliable
+F: Reliability cannot be judged
+Information Credibility (Rating 1–6):
+1: Confirmed by other sources
+2: Probably true
+3: Possibly true
+4: Doubtful
+5: Improbable
+6: Truth cannot be judged
+Dashboard Filtering Example
+Primary Filter: Select OSINT
+Sub-Type Filter: Select Social Media
+Admiralty System Filter:
+Source Reliability: B (Usually reliable)
+Information Credibility: 2 (Probably true)
+Interface Layout
+First Dropdown (Tier 1): Type of Intelligence
+Second Dropdown (Tier 2): Sub-Type
+Admiralty Filter Dropdowns:
+Source Reliability: A–F
+Information Credibility: 1–6

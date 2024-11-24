@@ -107,13 +107,14 @@
         <!-- Load Socket.IO only for pages that need real-time updates -->
         {% if request.endpoint in ['main.dashboard', 'main.alerts'] %}
         <script>
-            let socket;
             document.addEventListener('DOMContentLoaded', function() {
-                socket = io({
-                    reconnection: true,
-                    reconnectionAttempts: 5,
-                    reconnectionDelay: 1000
-                });
+                if (typeof io !== 'undefined') {
+                    window.socket = io({
+                        reconnection: true,
+                        reconnectionAttempts: 5,
+                        reconnectionDelay: 1000
+                    });
+                }
             });
 
             // Load websocket.js after Socket.IO is initialized

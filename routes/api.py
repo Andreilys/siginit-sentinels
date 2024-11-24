@@ -96,3 +96,23 @@ def get_priority(intel_data):
     elif intel_data.credibility_score >= 0.5:
         return 2
     return 3
+
+@api_bp.route('/statistics')
+@login_required
+def get_statistics():
+    # Get count of alerts by priority
+    high_priority = Alert.query.filter_by(priority=1).count()
+    medium_priority = Alert.query.filter_by(priority=2).count()
+    low_priority = Alert.query.filter_by(priority=3).count()
+    
+    # Get count of active incidents (unresolved alerts)
+    active_incidents = Alert.query.filter(
+        Alert.status.in_(['new', 'acknowledged'])
+    ).count()
+    
+    return jsonify({
+        'activeIncidents': active_incidents,
+        'highPriority': high_priority,
+        'mediumPriority': medium_priority,
+        'lowPriority': low_priority
+    })

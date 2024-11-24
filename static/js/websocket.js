@@ -1,14 +1,8 @@
 // Initialize Socket.IO with reconnection options
-const socket = io({
-    reconnection: true,
-    reconnectionAttempts: 5,
-    reconnectionDelay: 1000,
-    reconnectionDelayMax: 5000,
-    timeout: 20000
-});
+// Socket.IO is initialized in base.html and available as window.socket
 
 // Connection event handlers
-socket.on('connect', () => {
+window.socket.on('connect', () => {
     console.log('WebSocket connected');
     // Remove any existing connection error messages
     const errorElement = document.getElementById('socket-error');
@@ -17,12 +11,12 @@ socket.on('connect', () => {
     }
 });
 
-socket.on('connect_error', (error) => {
+window.socket.on('connect_error', (error) => {
     console.error('Connection error:', error);
     showConnectionError();
 });
 
-socket.on('disconnect', (reason) => {
+window.socket.on('disconnect', (reason) => {
     console.log('Disconnected:', reason);
     if (reason === 'io server disconnect') {
         // Reconnect manually if server disconnected
@@ -30,12 +24,12 @@ socket.on('disconnect', (reason) => {
     }
 });
 
-socket.on('reconnect_attempt', (attemptNumber) => {
+window.socket.on('reconnect_attempt', (attemptNumber) => {
     console.log(`Attempting to reconnect... (${attemptNumber})`);
 });
 
 // Alert handling
-socket.on('new_alert', (data) => {
+window.socket.on('new_alert', (data) => {
     const alertsContainer = document.getElementById('alerts-container');
     if (alertsContainer) {
         const alertDiv = document.createElement('div');
@@ -56,7 +50,7 @@ socket.on('new_alert', (data) => {
     }
 });
 
-socket.on('threat_level_update', (data) => {
+window.socket.on('threat_level_update', (data) => {
     const threatBar = document.querySelector('.progress-bar');
     if (threatBar) {
         threatBar.style.width = `${data.level}%`;

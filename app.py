@@ -15,7 +15,7 @@ class Base(DeclarativeBase):
 csrf = CSRFProtect()
 
 db = SQLAlchemy(model_class=Base)
-migrate = Migrate()
+migrate = Migrate(directory='migrations')
 socketio = SocketIO(
     cors_allowed_origins="*",
     async_mode='gevent',

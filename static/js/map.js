@@ -14,25 +14,31 @@ function initMap() {
     setupFilters();
 }
 
+function getPriorityColor(priority) {
+    return priority === 1 ? 'red' :
+           priority === 2 ? 'orange' :
+           'yellow';
+}
+
 function addMarker(point) {
-    const marker = L.marker([point.latitude, point.longitude])
+    const markerIcon = L.divIcon({
+        className: 'custom-marker',
+        html: `<div style="background-color: ${getPriorityColor(point.priority)}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white;"></div>`,
+        iconSize: [12, 12]
+    });
+
+    const marker = L.marker([point.latitude, point.longitude], { icon: markerIcon })
         .bindPopup(`
             <div class="intel-popup">
                 <h5 class="popup-title">${point.title}</h5>
                 <div class="popup-content">
-                    <p><strong>Source:</strong> ${point.source}</p>
-                    <p><strong>Time:</strong> ${new Date(point.timestamp).toLocaleDateString(undefined, {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    })}</p>
-                    <p><strong>Priority:</strong> ${point.priority}</p>
-                    <p><strong>Credibility Score:</strong> ${point.credibility_score.toFixed(2)}</p>
-                    <p><strong>Content Preview:</strong></p>
-                    <div class="content-preview">${point.content ? point.content.substring(0, 150) + '...' : 'No content available'}</div>
+                    <p><strong>Intelligence Type:</strong> ${point.intel_type}</p>
+                    <p><strong>Subtype:</strong> ${point.intel_subtype}</p>
+                    <p><strong>Source Reliability:</strong> ${point.source_reliability}</p>
+                    <p><strong>Information Credibility:</strong> ${point.info_credibility}</p>
+                    <p><strong>Priority Level:</strong> ${point.priority}</p>
+                    <p><strong>Time:</strong> ${new Date(point.timestamp).toLocaleDateString()}</p>
+                    <div class="content-preview">${point.content || 'No content available'}</div>
                 </div>
             </div>
         `);
@@ -58,8 +64,8 @@ function clearMapMarkers() {
 function setupFilters() {
     const typeSelect = document.getElementById('intel-type-filter');
     const subtypeSelect = document.getElementById('intel-subtype-filter');
+    const applyButton = document.getElementById('apply-filters');
     
-    // Disable subtype initially
     subtypeSelect.disabled = true;
     
     typeSelect.addEventListener('change', function(e) {
@@ -83,14 +89,9 @@ function setupFilters() {
                 subtypeSelect.appendChild(option);
             });
         }
-        
-        filterIntelPoints();
     });
 
-    // Add event listeners for other filters
-    document.getElementById('intel-subtype-filter').addEventListener('change', filterIntelPoints);
-    document.getElementById('source-reliability-filter').addEventListener('change', filterIntelPoints);
-    document.getElementById('info-credibility-filter').addEventListener('change', filterIntelPoints);
+    applyButton.addEventListener('click', filterIntelPoints);
 }
 
 function filterIntelPoints() {

@@ -32,7 +32,11 @@ def get_intel_points():
         'timestamp': point.timestamp.isoformat(),
         'priority': get_priority(point),
         'credibility_score': point.credibility_score,
-        'content': point.content
+        'content': point.content,
+        'intel_type': point.intel_type.name,
+        'intel_subtype': point.intel_subtype,
+        'source_reliability': point.source_reliability.name,
+        'info_credibility': point.info_credibility.name
     } for point in intel_data])
 
 @api_bp.route('/threat-level')

@@ -1,7 +1,12 @@
 from flask.cli import FlaskGroup
+from dotenv import load_dotenv
+import os
 from app import create_app, socketio, db
 from flask_migrate import Migrate, upgrade
 import logging
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = create_app()
 
@@ -19,7 +24,7 @@ if __name__ == "__main__":
             
         socketio.run(app,
                     host="0.0.0.0",
-                    port=5000,
+                    port=5001,
                     debug=False,
                     log_output=True,
                     use_reloader=False,

@@ -1,4 +1,4 @@
-modules = ["python-3.11", "postgresql-16"]
+modules = ["python-3.11", "postgresql-16", "nodejs-20"]
 
 [nix]
 channel = "stable-24_05"
@@ -13,10 +13,10 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Military Intelligence Platform"
+args = "Flask Server"
 
 [[workflows.workflow]]
-name = "Military Intelligence Platform"
+name = "Flask Server"
 author = "agent"
 
 [workflows.workflow.metadata]

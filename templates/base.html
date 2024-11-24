@@ -19,6 +19,7 @@
           onerror="handleResourceError(this, 'Map styles failed to load')"
           crossorigin="anonymous">
     {% endif %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <link href="{{ url_for('static', filename='css/custom.css') }}" 
           rel="stylesheet" 
@@ -100,7 +101,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" 
             async 
             onerror="handleResourceError(this, 'Core functionality might be limited')"></script>
-    
+
     <!-- Socket.IO -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
 <script src="https://d3js.org/d3.v7.min.js"></script>

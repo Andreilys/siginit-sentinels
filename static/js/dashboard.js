@@ -219,11 +219,22 @@ document.addEventListener('DOMContentLoaded', function() {
     // Quick filter buttons
     document.querySelectorAll('[data-timerange]').forEach(button => {
         button.addEventListener('click', function() {
+            // Remove active class from all buttons
+            document.querySelectorAll('[data-timerange]').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            // Add active class to clicked button
+            this.classList.add('active');
+            
             const range = this.dataset.timerange;
             const now = new Date();
             let startDate = new Date();
             const endDate = document.getElementById('end-date');
             const startDatePicker = document.getElementById('start-date');
+            
+            // Always set end date to today
+            const today = new Date().toISOString().split('T')[0];
+            endDate.value = today;
             
             switch(range) {
                 case 'today':
@@ -239,7 +250,6 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Update date picker values
             startDatePicker.value = startDate.toISOString().split('T')[0];
-            endDate.value = new Date().toISOString().split('T')[0];
             
             // Update timeline
             initializeTimeline(startDate, new Date());

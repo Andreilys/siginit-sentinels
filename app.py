@@ -17,7 +17,7 @@ from flask_jwt_extended import JWTManager
 jwt = JWTManager()
 
 db = SQLAlchemy(model_class=Base)
-migrate = Migrate(directory='migrations')
+migrate = Migrate(app=None, db=None, directory='migrations')
 socketio = SocketIO(
     cors_allowed_origins="*",
     async_mode='gevent',
@@ -63,6 +63,7 @@ def create_app():
     # Enhanced database initialization and connection handling
     try:
         db.init_app(app)
+        migrate.init_app(app, db)
         with app.app_context():
             # Test database connection with timeout
             connection = db.engine.connect()

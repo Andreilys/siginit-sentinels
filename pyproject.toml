@@ -29,6 +29,7 @@ dependencies = [
     "flask-jwt-extended",
     "python-jose",
     "elasticsearch>=8.16.0",
+    "alembic",
 ]
 
 [tool.setuptools]

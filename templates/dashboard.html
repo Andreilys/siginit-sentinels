@@ -92,18 +92,33 @@
             </div>
             <div class="card-body">
                 <div class="timeline-controls mb-3">
-                    <button class="btn btn-outline-secondary" id="timeline-zoom-out">
-                        <i class="fas fa-search-minus"></i>
-                    </button>
-                    <button class="btn btn-outline-secondary" id="timeline-zoom-in">
-                        <i class="fas fa-search-plus"></i>
-                    </button>
-                    <button class="btn btn-outline-secondary" id="timeline-refresh">
-                        <i class="fas fa-sync"></i>
-                    </button>
-                    <button class="btn btn-outline-secondary" id="timeline-play">
-                        <i class="fas fa-play"></i>
-                    </button>
+                    <div class="btn-group me-3">
+                        <button class="btn btn-outline-secondary" data-timerange="today">Today</button>
+                        <button class="btn btn-outline-secondary" data-timerange="week">Last Week</button>
+                        <button class="btn btn-outline-secondary" data-timerange="month">Last Month</button>
+                        <button class="btn btn-outline-secondary" data-timerange="year">Last Year</button>
+                        <button class="btn btn-outline-secondary" data-timerange="all">All Time</button>
+                    </div>
+                    <div class="date-range-picker me-3">
+                        <input type="date" id="timeline-start-date" class="form-control">
+                        <span class="mx-2">to</span>
+                        <input type="date" id="timeline-end-date" class="form-control">
+                    </div>
+                    <button class="btn btn-primary" id="apply-date-filter">Apply Filter</button>
+                    <div class="btn-group ms-3">
+                        <button class="btn btn-outline-secondary" id="timeline-zoom-out">
+                            <i class="fas fa-search-minus"></i>
+                        </button>
+                        <button class="btn btn-outline-secondary" id="timeline-zoom-in">
+                            <i class="fas fa-search-plus"></i>
+                        </button>
+                        <button class="btn btn-outline-secondary" id="timeline-refresh">
+                            <i class="fas fa-sync"></i>
+                        </button>
+                        <button class="btn btn-outline-secondary" id="timeline-play">
+                            <i class="fas fa-play"></i>
+                        </button>
+                    </div>
                 </div>
                 <div id="intelligence-timeline" style="height: 200px;"></div>
             </div>

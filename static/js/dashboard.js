@@ -133,12 +133,19 @@ function initTimeline() {
         });
 }
 
-function initializeTimeline() {
+function initializeTimeline(startDate = null, endDate = null) {
     const timelineData = [];
     const timelineDates = {};
     
+    // Filter data based on date range
+    const filteredData = startDate && endDate ? 
+        intelData.filter(item => {
+            const date = new Date(item.timestamp);
+            return date >= startDate && date <= endDate;
+        }) : intelData;
+    
     // Process intelligence data into timeline format
-    intelData.forEach(item => {
+    filteredData.forEach(item => {
         const date = new Date(item.timestamp).toISOString().split('T')[0];
         if (!timelineDates[date]) {
             timelineDates[date] = 0;
@@ -209,6 +216,45 @@ function refreshTimeline() {
 
 // Add event listeners for timeline controls
 document.addEventListener('DOMContentLoaded', function() {
+    // Quick filter buttons
+    document.querySelectorAll('[data-timerange]').forEach(button => {
+        button.addEventListener('click', function() {
+            const range = this.dataset.timerange;
+            const now = new Date();
+            let startDate = new Date();
+            
+            switch(range) {
+                case 'today':
+                    startDate = new Date(now.setHours(0,0,0,0));
+                    break;
+                case 'week':
+                    startDate.setDate(startDate.getDate() - 7);
+                    break;
+                case 'month':
+                    startDate.setMonth(startDate.getMonth() - 1);
+                    break;
+                case 'year':
+                    startDate.setFullYear(startDate.getFullYear() - 1);
+                    break;
+                case 'all':
+                    startDate = null;
+                    break;
+            }
+            
+            initializeTimeline(startDate, range === 'all' ? null : new Date());
+        });
+    });
+    
+    // Custom date range filter
+    document.getElementById('apply-date-filter').addEventListener('click', function() {
+        const startDate = new Date(document.getElementById('timeline-start-date').value);
+        const endDate = new Date(document.getElementById('timeline-end-date').value);
+        
+        if (!isNaN(startDate.getTime()) && !isNaN(endDate.getTime())) {
+            initializeTimeline(startDate, endDate);
+        }
+    });
+
     const zoomIn = document.getElementById('timeline-zoom-in');
     const zoomOut = document.getElementById('timeline-zoom-out');
     const refresh = document.getElementById('timeline-refresh');

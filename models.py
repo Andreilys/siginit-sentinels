@@ -74,3 +74,20 @@ class Alert(db.Model):
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     status = db.Column(db.String(20))  # new, acknowledged, resolved
     intel_id = db.Column(db.Integer, db.ForeignKey('intelligence_data.id'))
+
+class ConversationAnalysis(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    priority_level = db.Column(db.String(50), nullable=False)  # High, Medium, Low
+    risk_assessment = db.Column(db.Text, nullable=False)
+    key_insights = db.Column(db.Text, nullable=False)
+    critical_entities = db.Column(JSON, nullable=False)
+    locations_mentioned = db.Column(JSON, nullable=False)
+    sentiment_summary = db.Column(db.Text, nullable=False)
+    source_reliability = db.Column(db.String(50), nullable=False)
+    information_credibility = db.Column(db.String(50), nullable=False)
+    recommended_actions = db.Column(JSON, nullable=False)
+    entity_relationships = db.Column(db.Text, nullable=False)
+    speakers = db.Column(JSON, nullable=False)
+    conversation_duration = db.Column(db.String(50), nullable=False)  # Short, Medium, Long
+    analyzed_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)

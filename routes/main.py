@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, jsonify
 from flask_login import login_required
 from models import Alert, IntelligenceData
+from models import Alert, IntelligenceData, ConversationAnalysis
 from elasticsearch import Elasticsearch
 from datetime import datetime
 
@@ -63,6 +64,12 @@ def reports():
 def calculate_threat_level():
     # Simple threat level calculation based on recent high-priority alerts
     high_priority_count = Alert.query.filter_by(priority=1).count()
+
+@main_bp.route('/audio')
+@login_required
+def audio():
+    conversations = ConversationAnalysis.query.order_by(ConversationAnalysis.analyzed_at.desc()).all()
+    return render_template('audio.html', conversations=conversations)
 
 @main_bp.route('/telegram')
 @login_required

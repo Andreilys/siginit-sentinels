@@ -47,7 +47,8 @@ def create_app():
         SESSION_COOKIE_SAMESITE='Lax',
         REMEMBER_COOKIE_SECURE=True,
         REMEMBER_COOKIE_HTTPONLY=True,
-        REMEMBER_COOKIE_DURATION=timedelta(days=14)
+        REMEMBER_COOKIE_DURATION=timedelta(days=14),
+        WTF_CSRF_CHECK_DEFAULT=False
     )
     
     # Configure session interface for better security

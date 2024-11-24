@@ -226,20 +226,41 @@ function performSearch(e) {
                                                 </div>
                                                 <div class="modal-body">
                                                     <!-- Content Tabs -->
-                                                    <ul class="nav nav-tabs mb-3" role="tablist">
-                                                        <li class="nav-item">
-                                                            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#content${index}">
+                                                    <ul class="nav nav-tabs mb-3" id="tabList${index}" role="tablist">
+                                                        <li class="nav-item" role="presentation">
+                                                            <button class="nav-link active" 
+                                                                    id="content-tab${index}" 
+                                                                    data-bs-toggle="tab" 
+                                                                    data-bs-target="#content${index}" 
+                                                                    type="button" 
+                                                                    role="tab" 
+                                                                    aria-controls="content${index}" 
+                                                                    aria-selected="true">
                                                                 Content
                                                             </button>
                                                         </li>
-                                                        <li class="nav-item">
-                                                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#entities${index}">
+                                                        <li class="nav-item" role="presentation">
+                                                            <button class="nav-link" 
+                                                                    id="entities-tab${index}" 
+                                                                    data-bs-toggle="tab" 
+                                                                    data-bs-target="#entities${index}" 
+                                                                    type="button" 
+                                                                    role="tab" 
+                                                                    aria-controls="entities${index}" 
+                                                                    aria-selected="false">
                                                                 Entities
                                                             </button>
                                                         </li>
                                                         ${source.location_mentioned ? `
-                                                            <li class="nav-item">
-                                                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#location${index}">
+                                                            <li class="nav-item" role="presentation">
+                                                                <button class="nav-link" 
+                                                                        id="location-tab${index}" 
+                                                                        data-bs-toggle="tab" 
+                                                                        data-bs-target="#location${index}" 
+                                                                        type="button" 
+                                                                        role="tab" 
+                                                                        aria-controls="location${index}" 
+                                                                        aria-selected="false">
                                                                     Location
                                                                 </button>
                                                             </li>
@@ -247,23 +268,13 @@ function performSearch(e) {
                                                     </ul>
 
                                                     <!-- Tab Content -->
-                                                    <div class="tab-content">
+                                                    <div class="tab-content" id="tabContent${index}">
                                                         <!-- Content Tab -->
-                                                        <div class="tab-pane fade show active" id="content${index}">
-                                                            ${source.translated_text ? `
-                                                                <div class="translated-content mb-3">
-                                                                    <h6>Translated Text</h6>
-                                                                    <div class="p-3 bg-light rounded">
-                                                                        ${source.translated_text}
-                                                                    </div>
-                                                                </div>
-                                                            ` : ''}
-                                                            <div class="original-content mb-3">
-                                                                <h6>Original Text (${source.detected_language})</h6>
-                                                                <div class="p-3 bg-light rounded">
-                                                                    ${source.text}
-                                                                </div>
-                                                            </div>
+                                                        <div class="tab-pane fade show active" 
+                                                             id="content${index}" 
+                                                             role="tabpanel" 
+                                                             aria-labelledby="content-tab${index}">
+                                                            
                                                             ${source.media_url ? `
                                                                 <div class="media-content">
                                                                     <h6>Media</h6>
@@ -282,10 +293,28 @@ function performSearch(e) {
                                                                     `}
                                                                 </div>
                                                             ` : ''}
+
+                                                            ${source.translated_text ? `
+                                                                <div class="translated-content mb-3">
+                                                                    <h6>Translated Text</h6>
+                                                                    <div class="p-3 rounded">
+                                                                        ${source.translated_text}
+                                                                    </div>
+                                                                </div>
+                                                            ` : ''}
+                                                            <div class="original-content mb-3">
+                                                                <h6>Original Text (${source.detected_language})</h6>
+                                                                <div class="p-3 rounded">
+                                                                    ${source.text}
+                                                                </div>
+                                                            </div>
                                                         </div>
 
                                                         <!-- Entities Tab -->
-                                                        <div class="tab-pane fade" id="entities${index}">
+                                                        <div class="tab-pane fade" 
+                                                             id="entities${index}" 
+                                                             role="tabpanel" 
+                                                             aria-labelledby="entities-tab${index}">
                                                             ${source.entities ? `
                                                                 ${Object.entries(source.entities).map(([type, entities]) => `
                                                                     <div class="entity-group mb-3">
@@ -307,7 +336,10 @@ function performSearch(e) {
 
                                                         <!-- Location Tab -->
                                                         ${source.location_mentioned ? `
-                                                            <div class="tab-pane fade" id="location${index}">
+                                                            <div class="tab-pane fade" 
+                                                                 id="location${index}" 
+                                                                 role="tabpanel" 
+                                                                 aria-labelledby="location-tab${index}">
                                                                 <div class="location-details">
                                                                     <h6>${source.location_name}</h6>
                                                                     ${source.location_country ? `

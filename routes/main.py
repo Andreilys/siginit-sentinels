@@ -15,33 +15,41 @@ def dashboard():
 @main_bp.route('/alerts')
 @login_required
 def alerts():
+    from flask import current_app
     # Query intelligence data directly
     intel_data = IntelligenceData.query.order_by(IntelligenceData.timestamp.desc()).all()
     
     # Calculate Admiralty scores and assign priorities
     alerts_data = []
     for intel in intel_data:
-        # Calculate Admiralty score
-        reliability_scores = {'A': 5, 'B': 4, 'C': 3, 'D': 2, 'E': 1, 'F': 0}
-        credibility_scores = {'ONE': 5, 'TWO': 4, 'THREE': 3, 'FOUR': 2, 'FIVE': 1, 'SIX': 0}
-        
-        rel_score = reliability_scores.get(intel.source_reliability.name, 0)
-        cred_score = credibility_scores.get(intel.info_credibility.name, 0)
-        admiralty_score = ((rel_score + cred_score) / 10)  # 0 to 1 scale
-        
-        # Assign priority based on Admiralty score
-        if admiralty_score >= 0.7:
-            priority = 'high'
-        elif admiralty_score >= 0.4:
-            priority = 'medium'
-        else:
-            priority = 'low'
+        try:
+            # Calculate Admiralty score
+            reliability_scores = {'A': 5, 'B': 4, 'C': 3, 'D': 2, 'E': 1, 'F': 0}
+            credibility_scores = {'ONE': 5, 'TWO': 4, 'THREE': 3, 'FOUR': 2, 'FIVE': 1, 'SIX': 0}
             
-        alerts_data.append({
-            'intel': intel,
-            'admiralty_score': admiralty_score,
-            'priority': priority
-        })
+            # Safely get enum values with fallback to lowest score
+            rel_score = reliability_scores.get(intel.source_reliability.name if intel.source_reliability else 'F', 0)
+            cred_score = credibility_scores.get(intel.info_credibility.name if intel.info_credibility else 'SIX', 0)
+            
+            admiralty_score = ((rel_score + cred_score) / 10)  # 0 to 1 scale
+            
+            # Assign priority based on Admiralty score
+            if admiralty_score >= 0.7:
+                priority = 'high'
+            elif admiralty_score >= 0.4:
+                priority = 'medium'
+            else:
+                priority = 'low'
+                
+            alerts_data.append({
+                'intel': intel,
+                'admiralty_score': admiralty_score,
+                'priority': priority
+            })
+        except Exception as e:
+            # Log the error but continue processing other records
+            current_app.logger.error(f'Error processing intel record {intel.id}: {str(e)}')
+            continue
     
     return render_template('alerts.html', alerts=alerts_data)
 

@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Telegram Data Search</h5>
+                </div>
+                <div class="card-body">
+                    <form id="telegram-search-form">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <input type="text" class="form-control" id="search-query" placeholder="Search text...">
+                            </div>
+                            <div class="col-md-6">
+                                <input type="text" class="form-control" id="channel-search" placeholder="Channel name...">
+                            </div>
+                            <div class="col-md-4">
+                                <select class="form-select" id="language-filter">
+                                    <option value="">All Languages</option>
+                                    <option value="en">English</option>
+                                    <option value="ru">Russian</option>
+                                    <option value="uk">Ukrainian</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="date" class="form-control" id="start-date">
+                            </div>
+                            <div class="col-md-4">
+                                <input type="date" class="form-control" id="end-date">
+                            </div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary">Search</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Results</h5>
+                </div>
+                <div class="card-body">
+                    <div id="telegram-results" class="list-group">
+                        <!-- Results will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('telegram-search-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const params = new URLSearchParams({
+        query: document.getElementById('search-query').value,
+        channel: document.getElementById('channel-search').value,
+        language: document.getElementById('language-filter').value,
+        start_date: document.getElementById('start-date').value,
+        end_date: document.getElementById('end-date').value
+    });
+    
+    fetch('/api/telegram-data?' + params.toString())
+        .then(response => response.json())
+        .then(data => {
+            const resultsDiv = document.getElementById('telegram-results');
+            resultsDiv.innerHTML = data.map(item => `
+                <div class="list-group-item">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">${item._source.channel}</h5>
+                        <small>${new Date(item._source.timestamp).toLocaleString()}</small>
+                    </div>
+                    <p class="mb-1">${item._source.content}</p>
+                    <small>Language: ${item._source.language}</small>
+                </div>
+            `).join('');
+        })
+        .catch(error => console.error('Error:', error));
+});
+</script>
+{% endblock %}

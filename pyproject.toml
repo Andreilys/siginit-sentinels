@@ -28,6 +28,7 @@ dependencies = [
     "flask-migrate>=4.0.7",
     "flask-jwt-extended",
     "python-jose",
+    "elasticsearch>=8.16.0",
 ]
 
 [tool.setuptools]

@@ -1,6 +1,10 @@
 let map;
 let markers = [];
 
+let heatLayer;
+let markerLayer;
+let currentView = 'markers';
+
 function initMap() {
     map = L.map('map').setView([50.4501, 30.5234], 6);
     
@@ -9,9 +13,73 @@ function initMap() {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
     
+    markerLayer = L.layerGroup().addTo(map);
+    
     // Load initial intel points and set up filters
     loadIntelPoints();
     setupFilters();
+    setupViewControls();
+}
+
+function setupViewControls() {
+    document.querySelectorAll('[data-view]').forEach(button => {
+        button.addEventListener('click', function() {
+            const view = this.dataset.view;
+            
+            // Update active button
+            document.querySelectorAll('[data-view]').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            this.classList.add('active');
+            
+            // Switch view
+            currentView = view;
+            updateVisualization();
+        });
+    });
+}
+
+function updateVisualization() {
+    if (currentView === 'heatmap') {
+        markerLayer.clearLayers();
+        initHeatmap(window.intelData);
+    } else {
+        if (heatLayer) {
+            map.removeLayer(heatLayer);
+        }
+        loadIntelPoints();
+    }
+}
+
+function initHeatmap(data) {
+    if (heatLayer) {
+        map.removeLayer(heatLayer);
+    }
+    
+    const heatData = data.map(point => [
+        point.latitude,
+        point.longitude,
+        calculateIntensity(point)
+    ]);
+    
+    heatLayer = L.heatLayer(heatData, {
+        radius: 25,
+        blur: 15,
+        maxZoom: 10,
+        gradient: {
+            0.4: '#ffffb2',
+            0.6: '#fd8d3c',
+            0.8: '#f03b20',
+            1.0: '#bd0026'
+        }
+    }).addTo(map);
+}
+
+function calculateIntensity(point) {
+    // Calculate intensity based on priority and credibility
+    return (point.priority === 1 ? 1.0 : 
+            point.priority === 2 ? 0.7 : 
+            0.4) * point.credibility_score;
 }
 
 function getPriorityColor(priority) {
@@ -58,8 +126,13 @@ function loadIntelPoints() {
     fetch('/api/intel-points')
         .then(response => response.json())
         .then(data => {
-            clearMapMarkers();
-            data.forEach(point => addMarker(point));
+            window.intelData = data;
+            if (currentView === 'markers') {
+                clearMapMarkers();
+                data.forEach(point => addMarker(point));
+            } else {
+                initHeatmap(data);
+            }
         });
 }
 

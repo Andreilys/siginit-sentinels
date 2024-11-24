@@ -64,8 +64,21 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-12 text-end mb-3">
-                        <button type="button" id="apply-filters" class="btn btn-primary">Apply Filters</button>
+                    <div class="col-12 mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="heatmap-controls">
+                                <div class="btn-group">
+                                    <button class="btn btn-outline-secondary active" data-view="markers">Markers</button>
+                                    <button class="btn btn-outline-secondary" data-view="heatmap">Heatmap</button>
+                                </div>
+                                <div class="intensity-legend mt-2">
+                                    <span class="badge bg-danger">High</span>
+                                    <span class="badge bg-warning">Medium</span>
+                                    <span class="badge bg-info">Low</span>
+                                </div>
+                            </div>
+                            <button type="button" id="apply-filters" class="btn btn-primary">Apply Filters</button>
+                        </div>
                     </div>
                 </div>
                 <div id="map" style="height: 500px;"></div>

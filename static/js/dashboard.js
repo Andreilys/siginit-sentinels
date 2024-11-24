@@ -20,15 +20,17 @@ function initDashboard() {
 
 function initRealTimeUpdates() {
     // Set up WebSocket listeners for real-time updates
-    socket.on('intel_update', function(data) {
-        updateMap(data.coordinates);
-        updateThreatLevel();
-        updateStatistics();
-    });
-    
-    socket.on('alert_update', function(data) {
-        updateAlerts(data);
-    });
+    if (window.socket) {
+        window.socket.on('intel_update', function(data) {
+            updateMap(data.coordinates);
+            updateThreatLevel();
+            updateStatistics();
+        });
+        
+        window.socket.on('alert_update', function(data) {
+            updateAlerts(data);
+        });
+    }
 }
 
 function updateThreatLevel() {

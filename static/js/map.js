@@ -127,5 +127,17 @@ function updateMap(coordinates) {
     });
 }
 
-// Initialize map when DOM is loaded
-document.addEventListener('DOMContentLoaded', initMap);
+// Initialize map and socket handlers when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize map
+    initMap();
+    
+    // Set up socket event handlers if socket is available
+    if (window.socket) {
+        window.socket.on('intel_update', function(data) {
+            if (data.coordinates) {
+                updateMap(data.coordinates);
+            }
+        });
+    }
+});

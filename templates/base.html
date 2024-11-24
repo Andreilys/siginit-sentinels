@@ -107,24 +107,29 @@
         <!-- Load Socket.IO only for pages that need real-time updates -->
         {% if request.endpoint in ['main.dashboard', 'main.alerts'] %}
         <script>
-            document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Socket.IO
+            window.initSocketIO = function() {
                 if (typeof io !== 'undefined') {
                     window.socket = io({
                         reconnection: true,
                         reconnectionAttempts: 5,
                         reconnectionDelay: 1000
                     });
+                    
+                    // Load websocket.js after Socket.IO is initialized
+                    const websocketScript = document.createElement('script');
+                    websocketScript.src = "{{ url_for('static', filename='js/websocket.js') }}";
+                    websocketScript.onerror = function() {
+                        handleResourceError(this, 'Real-time functionality might be limited');
+                    };
+                    document.body.appendChild(websocketScript);
                 }
-            });
-
-            // Load websocket.js after Socket.IO is initialized
-            const websocketScript = document.createElement('script');
-            websocketScript.src = "{{ url_for('static', filename='js/websocket.js') }}";
-            websocketScript.defer = true;
-            websocketScript.onerror = function() {
-                handleResourceError(this, 'Real-time functionality might be limited');
             };
-            document.body.appendChild(websocketScript);
+
+            // Initialize when DOM is loaded
+            document.addEventListener('DOMContentLoaded', function() {
+                window.initSocketIO();
+            });
         </script>
         {% endif %}
     {% endif %}

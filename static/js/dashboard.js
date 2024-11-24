@@ -67,15 +67,61 @@ function updateStatistics() {
             // Update intel type breakdown
             const breakdownDiv = document.getElementById('intel-type-breakdown');
             breakdownDiv.innerHTML = ''; // Clear existing content
-            Object.entries(data.intelTypes).forEach(([type, count]) => {
-                const div = document.createElement('div');
-                div.className = 'd-flex justify-content-between mb-2';
-                div.innerHTML = `
-                    <span>${type}:</span>
-                    <span class="badge bg-secondary">${count}</span>
+            
+            Object.entries(data.intelTypes).forEach(([type, info]) => {
+                const typeDiv = document.createElement('div');
+                typeDiv.className = 'mb-3';
+                
+                // Add type header with total count
+                typeDiv.innerHTML = `
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="fw-bold">${type}:</span>
+                        <span class="badge bg-primary">${info.total}</span>
+                    </div>
                 `;
-                breakdownDiv.appendChild(div);
+                
+                // Add subtypes
+                const subtypesDiv = document.createElement('div');
+                subtypesDiv.className = 'ms-3';
+                Object.entries(info.subtypes).forEach(([subtype, count]) => {
+                    subtypesDiv.innerHTML += `
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="small">${subtype}:</span>
+                            <span class="badge bg-secondary">${count}</span>
+                        </div>
+                    `;
+                });
+                typeDiv.appendChild(subtypesDiv);
+                breakdownDiv.appendChild(typeDiv);
             });
+            
+            // Add reliability distribution
+            const reliabilityDiv = document.createElement('div');
+            reliabilityDiv.className = 'mt-3';
+            reliabilityDiv.innerHTML = `
+                <h6>Source Reliability</h6>
+                ${Object.entries(data.sourceReliability).map(([level, count]) => `
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Level ${level}:</span>
+                        <span class="badge bg-info">${count}</span>
+                    </div>
+                `).join('')}
+            `;
+            breakdownDiv.appendChild(reliabilityDiv);
+            
+            // Add credibility distribution
+            const credibilityDiv = document.createElement('div');
+            credibilityDiv.className = 'mt-3';
+            credibilityDiv.innerHTML = `
+                <h6>Information Credibility</h6>
+                ${Object.entries(data.infoCredibility).map(([level, count]) => `
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Level ${level}:</span>
+                        <span class="badge bg-info">${count}</span>
+                    </div>
+                `).join('')}
+            `;
+            breakdownDiv.appendChild(credibilityDiv);
         });
 }
 

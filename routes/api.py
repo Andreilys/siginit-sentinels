@@ -97,6 +97,8 @@ def get_priority(intel_data):
         return 2
     return 3
 
+from models import IntelType, IntelligenceData, Alert, SourceReliability, InfoCredibility
+
 @api_bp.route('/statistics')
 @login_required
 def get_statistics():
@@ -105,15 +107,39 @@ def get_statistics():
     medium_priority = Alert.query.filter_by(priority=2).count()
     low_priority = Alert.query.filter_by(priority=3).count()
     
-    # Get count by intel type
+    # Get count by intel type and subtype
     intel_types = {}
     for intel_type in IntelType:
-        count = IntelligenceData.query.filter_by(intel_type=intel_type).count()
-        intel_types[intel_type.name] = count
+        type_count = IntelligenceData.query.filter_by(intel_type=intel_type).count()
+        subtypes = db.session.query(
+            IntelligenceData.intel_subtype,
+            db.func.count(IntelligenceData.id)
+        ).filter_by(intel_type=intel_type).group_by(
+            IntelligenceData.intel_subtype
+        ).all()
+        
+        intel_types[intel_type.name] = {
+            'total': type_count,
+            'subtypes': {subtype: count for subtype, count in subtypes}
+        }
+    
+    # Get source reliability distribution
+    reliability_counts = db.session.query(
+        IntelligenceData.source_reliability,
+        db.func.count(IntelligenceData.id)
+    ).group_by(IntelligenceData.source_reliability).all()
+    
+    # Get info credibility distribution
+    credibility_counts = db.session.query(
+        IntelligenceData.info_credibility,
+        db.func.count(IntelligenceData.id)
+    ).group_by(IntelligenceData.info_credibility).all()
     
     return jsonify({
         'highPriority': high_priority,
         'mediumPriority': medium_priority,
         'lowPriority': low_priority,
-        'intelTypes': intel_types
+        'intelTypes': intel_types,
+        'sourceReliability': {rel[0].name: rel[1] for rel in reliability_counts},
+        'infoCredibility': {cred[0].name: cred[1] for cred in credibility_counts}
     })

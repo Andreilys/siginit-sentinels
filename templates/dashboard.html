@@ -8,6 +8,45 @@
                 <h5 class="card-title">Intelligence Map</h5>
             </div>
             <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <select class="form-select" id="intel-type-filter">
+                            <option value="">All Intelligence Types</option>
+                            <option value="IMINT">IMINT (Imagery Intelligence)</option>
+                            <option value="SIGINT">SIGINT (Signals Intelligence)</option>
+                            <option value="HUMINT">HUMINT (Human Intelligence)</option>
+                            <option value="OSINT">OSINT (Open Source Intelligence)</option>
+                            <option value="CYBERINT">CYBERINT (Cyber Intelligence)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="intel-subtype-filter">
+                            <option value="">All Subtypes</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="source-reliability-filter">
+                            <option value="">All Source Reliability</option>
+                            <option value="A">A - Completely Reliable</option>
+                            <option value="B">B - Usually Reliable</option>
+                            <option value="C">C - Fairly Reliable</option>
+                            <option value="D">D - Not Usually Reliable</option>
+                            <option value="E">E - Unreliable</option>
+                            <option value="F">F - Cannot be Judged</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="info-credibility-filter">
+                            <option value="">All Information Credibility</option>
+                            <option value="ONE">1 - Confirmed</option>
+                            <option value="TWO">2 - Probably True</option>
+                            <option value="THREE">3 - Possibly True</option>
+                            <option value="FOUR">4 - Doubtful</option>
+                            <option value="FIVE">5 - Improbable</option>
+                            <option value="SIX">6 - Cannot be Judged</option>
+                        </select>
+                    </div>
+                </div>
                 <div id="map" style="height: 500px;"></div>
             </div>
         </div>

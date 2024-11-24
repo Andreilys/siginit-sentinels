@@ -8,10 +8,21 @@ api_bp = Blueprint('api', __name__, url_prefix='/api')
 @api_bp.route('/intel-points')
 @login_required
 def get_intel_points():
-    intel_data = IntelligenceData.query.filter(
+    query = IntelligenceData.query.filter(
         IntelligenceData.latitude.isnot(None),
         IntelligenceData.longitude.isnot(None)
-    ).all()
+    )
+    
+    if intel_type := request.args.get('type'):
+        query = query.filter(IntelligenceData.intel_type == intel_type)
+    if subtype := request.args.get('subtype'):
+        query = query.filter(IntelligenceData.intel_subtype == subtype)
+    if reliability := request.args.get('reliability'):
+        query = query.filter(IntelligenceData.source_reliability == reliability)
+    if credibility := request.args.get('credibility'):
+        query = query.filter(IntelligenceData.info_credibility == credibility)
+    
+    intel_data = query.all()
     
     return jsonify([{
         'latitude': point.latitude,

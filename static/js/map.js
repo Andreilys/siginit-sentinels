@@ -9,12 +9,9 @@ function initMap() {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
     
-    // Load initial intel points
-    fetch('/api/intel-points')
-        .then(response => response.json())
-        .then(data => {
-            data.forEach(point => addMarker(point));
-        });
+    // Load initial intel points and set up filters
+    loadIntelPoints();
+    setupFilters();
 }
 
 function addMarker(point) {

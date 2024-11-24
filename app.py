@@ -13,6 +13,8 @@ class Base(DeclarativeBase):
     pass
 
 csrf = CSRFProtect()
+from flask_jwt_extended import JWTManager
+jwt = JWTManager()
 
 db = SQLAlchemy(model_class=Base)
 migrate = Migrate(directory='migrations')
@@ -30,6 +32,8 @@ def create_app():
     
     # Enhanced Configuration
     app.config.update(
+        JWT_SECRET_KEY=os.environ.get("JWT_SECRET_KEY", os.urandom(24).hex()),
+        JWT_ACCESS_TOKEN_EXPIRES=timedelta(hours=1),
         SECRET_KEY=os.environ.get("FLASK_SECRET_KEY", os.urandom(24).hex()),
         SQLALCHEMY_DATABASE_URI=os.environ.get("DATABASE_URL"),
         SQLALCHEMY_ENGINE_OPTIONS={

@@ -314,13 +314,58 @@ function filterIntelPoints() {
         });
 }
 
+// Initialize drawTools before using it
+window.drawTools = {
+    addMarker: function(map, latlng, options = {}) {
+        return L.marker(latlng, options).addTo(map);
+    },
+    addCircle: function(map, latlng, radius, options = {}) {
+        return L.circle(latlng, radius, options).addTo(map);
+    },
+    addPolygon: function(map, latlngs, options = {}) {
+        return L.polygon(latlngs, options).addTo(map);
+    }
+};
+
 function updateMap(coordinates) {
-    addMarker({
-        latitude: coordinates.lat,
-        longitude: coordinates.lng,
+    if (!window.map) return;
+    
+    const marker = drawTools.addMarker(window.map, [coordinates.lat, coordinates.lng], {
         title: coordinates.title,
-        priority: coordinates.priority,
-        timestamp: new Date()
+        icon: getMarkerIcon(coordinates.priority)
+    });
+    
+    if (coordinates.radius) {
+        drawTools.addCircle(window.map, [coordinates.lat, coordinates.lng], coordinates.radius, {
+            color: getPriorityColor(coordinates.priority),
+            fillColor: getPriorityColor(coordinates.priority),
+            fillOpacity: 0.2
+        });
+    }
+    
+    marker.bindPopup(`
+        <strong>${coordinates.title || 'New Alert'}</strong><br>
+        Priority: ${coordinates.priority}<br>
+        Time: ${new Date().toLocaleString()}
+    `);
+}
+
+function getPriorityColor(priority) {
+    switch(priority) {
+        case 1: return '#dc3545'; // danger
+        case 2: return '#ffc107'; // warning
+        case 3: return '#17a2b8'; // info
+        default: return '#6c757d'; // secondary
+    }
+}
+
+function getMarkerIcon(priority) {
+    return L.divIcon({
+        className: `marker-priority-${priority}`,
+        html: `<i class="fas fa-map-marker-alt"></i>`,
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34]
     });
 }
 

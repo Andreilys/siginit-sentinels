@@ -26,6 +26,8 @@ dependencies = [
     "gevent-websocket>=0.10.1",
     "eventlet>=0.33.3",
     "flask-migrate>=4.0.7",
+    "flask-jwt-extended",
+    "python-jose",
 ]
 
 [tool.setuptools]

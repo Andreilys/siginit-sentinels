@@ -108,55 +108,54 @@ def get_alert_details(alert_id):
     })
 
 
-@api_bp.route('/audio-analysis', methods=['POST'])
-def save_audio_analysis():
-    data = request.get_json()
+# @api_bp.route('/audio-analysis', methods=['POST'])
+# def save_audio_analysis():
+#     data = request.get_json()
 
-    # Validate required fields
-    if 'file_name' not in data:
-        return jsonify({'error': 'file_name is required'}), 400
+#     # Validate required fields
+#     if 'file_name' not in data:
+#         return jsonify({'error': 'file_name is required'}), 400
 
-    # Create new audio analysis record
-    analysis = AudioAnalysis(
-        file_name=data['file_name'],
-        transcription=data.get('transcription'),
-        translation=data.get('translation'),
-        key_insights=data.get('key_insights'),
-        keywords=data.get('keywords'),
-        locations_mentioned=data.get('locations_mentioned'),
-        sentiment_summary=data.get('sentiment_summary'),
-        critical_entities=data.get('critical_entities'),
-        latitude=data.get('latitude'),
-        longitude=data.get('longitude'))
+#     # Create new audio analysis record
+#     analysis = AudioAnalysis(
+#         file_name=data['file_name'],
+#         transcription=data.get('transcription'),
+#         translation=data.get('translation'),
+#         key_insights=data.get('key_insights'),
+#         keywords=data.get('keywords'),
+#         locations_mentioned=data.get('locations_mentioned'),
+#         sentiment_summary=data.get('sentiment_summary'),
+#         critical_entities=data.get('critical_entities'),
+#         latitude=data.get('latitude'),
+#         longitude=data.get('longitude'))
 
-    # Save to database
-    db.session.add(analysis)
-    db.session.commit()
+#     # Save to database
+#     db.session.add(analysis)
+#     db.session.commit()
 
-    return jsonify({
-        'id': analysis.id,
-        'message': 'Audio analysis saved successfully'
-    }), 201
+#     return jsonify({
+#         'id': analysis.id,
+#         'message': 'Audio analysis saved successfully'
+#     }), 201
 
+# @api_bp.route('/audio-analysis/<int:analysis_id>', methods=['GET'])
+# def get_audio_analysis(analysis_id):
+#     analysis = AudioAnalysis.query.get_or_404(analysis_id)
 
-@api_bp.route('/audio-analysis/<int:analysis_id>', methods=['GET'])
-def get_audio_analysis(analysis_id):
-    analysis = AudioAnalysis.query.get_or_404(analysis_id)
-
-    return jsonify({
-        'id': analysis.id,
-        'file_name': analysis.file_name,
-        'transcription': analysis.transcription,
-        'translation': analysis.translation,
-        'key_insights': analysis.key_insights,
-        'keywords': analysis.keywords,
-        'locations_mentioned': analysis.locations_mentioned,
-        'sentiment_summary': analysis.sentiment_summary,
-        'critical_entities': analysis.critical_entities,
-        'latitude': analysis.latitude,
-        'longitude': analysis.longitude,
-        'timestamp': analysis.timestamp.isoformat()
-    })
+#     return jsonify({
+#         'id': analysis.id,
+#         'file_name': analysis.file_name,
+#         'transcription': analysis.transcription,
+#         'translation': analysis.translation,
+#         'key_insights': analysis.key_insights,
+#         'keywords': analysis.keywords,
+#         'locations_mentioned': analysis.locations_mentioned,
+#         'sentiment_summary': analysis.sentiment_summary,
+#         'critical_entities': analysis.critical_entities,
+#         'latitude': analysis.latitude,
+#         'longitude': analysis.longitude,
+#         'timestamp': analysis.timestamp.isoformat()
+#     })
 
 
 def get_priority(intel_data):

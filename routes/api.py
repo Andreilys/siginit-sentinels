@@ -214,7 +214,7 @@ def get_statistics():
                 'max_score': max(scores),
                 'min_score': min(scores)
             }
-
+    return jsonify({'intelTypes': type_scores})
     return jsonify({'intelTypes': type_scores})
 
 
@@ -223,7 +223,6 @@ def get_statistics():
 def update_intel_scores(intel_id):
     data = request.get_json()
     intel_point = IntelligenceData.query.get_or_404(intel_id)
-
     try:
         intel_point.source_reliability = data['reliability']
         intel_point.info_credibility = data['credibility']
@@ -234,6 +233,10 @@ def update_intel_scores(intel_id):
             intel_point.source_reliability.name,
             intel_point.info_credibility.name)
 
+        # Recalculate priority for alerts
+        admiralty_score = calculate_admiralty_score(
+            intel_point.source_reliability.name,
+            intel_point.info_credibility.name)
         # Update associated alert if exists
         alert = Alert.query.filter_by(intel_id=intel_id).first()
         if alert:
@@ -244,7 +247,10 @@ def update_intel_scores(intel_id):
             else:
                 alert.priority = 3
             db.session.commit()
-
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 400
         return jsonify({'success': True})
     except Exception as e:
         db.session.rollback()

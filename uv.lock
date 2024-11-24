@@ -1159,6 +1159,7 @@ name = "repl-nix-geoalertanalyzer"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "alembic" },
     { name = "elasticsearch" },
     { name = "email-validator" },
     { name = "en-core-web-sm" },
@@ -1188,6 +1189,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "alembic" },
     { name = "elasticsearch", specifier = ">=8.16.0" },
     { name = "email-validator", specifier = ">=2.2.0" },
     { name = "en-core-web-sm", url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.1/en_core_web_sm-3.7.1.tar.gz" },

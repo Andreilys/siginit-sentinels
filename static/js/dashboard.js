@@ -317,8 +317,24 @@ function getPriorityBadge(priority) {
 }
 
 // Socket.IO event handler for timeline updates
-socket.on('intel_update', function(data) {
-    initTimeline(); // Refresh timeline with new data
+// Socket.IO event handler for timeline updates
+if (window.socket) {
+    window.socket.on('intel_update', function(data) {
+        initTimeline(); // Refresh timeline with new data
+    });
+}
+
+// Set default dates in date inputs
+document.addEventListener('DOMContentLoaded', function() {
+    const today = new Date();
+    const startDate = document.getElementById('start-date');
+    const endDate = document.getElementById('end-date');
+    
+    if (startDate && endDate) {
+        endDate.value = today.toISOString().split('T')[0];
+        today.setDate(today.getDate() - 30); // Default to last 30 days
+        startDate.value = today.toISOString().split('T')[0];
+    }
 });
 
 // Make functions available globally

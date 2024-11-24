@@ -105,14 +105,15 @@ def get_statistics():
     medium_priority = Alert.query.filter_by(priority=2).count()
     low_priority = Alert.query.filter_by(priority=3).count()
     
-    # Get count of active incidents (unresolved alerts)
-    active_incidents = Alert.query.filter(
-        Alert.status.in_(['new', 'acknowledged'])
-    ).count()
+    # Get count by intel type
+    intel_types = {}
+    for intel_type in IntelType:
+        count = IntelligenceData.query.filter_by(intel_type=intel_type).count()
+        intel_types[intel_type.name] = count
     
     return jsonify({
-        'activeIncidents': active_incidents,
         'highPriority': high_priority,
         'mediumPriority': medium_priority,
-        'lowPriority': low_priority
+        'lowPriority': low_priority,
+        'intelTypes': intel_types
     })

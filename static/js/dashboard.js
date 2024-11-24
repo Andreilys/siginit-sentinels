@@ -59,16 +59,23 @@ function updateStatistics() {
     fetch('/api/statistics')
         .then(response => response.json())
         .then(data => {
-            // Update active incidents count
-            const incidentsElement = document.getElementById('active-incidents');
-            if (incidentsElement) {
-                incidentsElement.textContent = data.activeIncidents;
-            }
+            // Update priority counts
+            document.getElementById('high-priority-count').textContent = data.highPriority;
+            document.getElementById('medium-priority-count').textContent = data.mediumPriority;
+            document.getElementById('low-priority-count').textContent = data.lowPriority;
             
-            // Update other statistics
-            updateStatisticElement('high-priority-count', data.highPriority);
-            updateStatisticElement('medium-priority-count', data.mediumPriority);
-            updateStatisticElement('low-priority-count', data.lowPriority);
+            // Update intel type breakdown
+            const breakdownDiv = document.getElementById('intel-type-breakdown');
+            breakdownDiv.innerHTML = ''; // Clear existing content
+            Object.entries(data.intelTypes).forEach(([type, count]) => {
+                const div = document.createElement('div');
+                div.className = 'd-flex justify-content-between mb-2';
+                div.innerHTML = `
+                    <span>${type}:</span>
+                    <span class="badge bg-secondary">${count}</span>
+                `;
+                breakdownDiv.appendChild(div);
+            });
         });
 }
 

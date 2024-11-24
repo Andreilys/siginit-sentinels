@@ -36,3 +36,17 @@ class Alert(db.Model):
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     status = db.Column(db.String(20))  # new, acknowledged, resolved
     intel_id = db.Column(db.Integer, db.ForeignKey('intelligence_data.id'))
+
+class AudioAnalysis(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    file_name = db.Column(db.String(255), nullable=False)
+    transcription = db.Column(db.Text)
+    translation = db.Column(db.Text)
+    key_insights = db.Column(db.Text)
+    keywords = db.Column(db.Text)  # Store as comma-separated or JSON string
+    locations_mentioned = db.Column(db.Text)  # Store as comma-separated or JSON string
+    sentiment_summary = db.Column(db.Text)
+    critical_entities = db.Column(db.Text)  # Store as JSON string
+    latitude = db.Column(db.Float)
+    longitude = db.Column(db.Float)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)

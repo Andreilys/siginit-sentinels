@@ -1,8 +1,9 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 from flask_login import login_required
-from models import Alert, IntelligenceData
+from models import Alert, IntelligenceData, AudioAnalysis
 from app import db
 
+# Create the blueprint
 api_bp = Blueprint('api', __name__, url_prefix='/api')
 
 @api_bp.route('/intel-points')
@@ -72,6 +73,56 @@ def get_alert_details(alert_id):
             'latitude': intel.latitude,
             'longitude': intel.longitude
         } if intel else None
+    })
+
+@api_bp.route('/audio-analysis', methods=['POST'])
+def save_audio_analysis():
+    data = request.get_json()
+    
+    # Validate required fields
+    if 'file_name' not in data:
+        return jsonify({'error': 'file_name is required'}), 400
+    
+    # Create new audio analysis record
+    analysis = AudioAnalysis(
+        file_name=data['file_name'],
+        transcription=data.get('transcription'),
+        translation=data.get('translation'),
+        key_insights=data.get('key_insights'),
+        keywords=data.get('keywords'),
+        locations_mentioned=data.get('locations_mentioned'),
+        sentiment_summary=data.get('sentiment_summary'),
+        critical_entities=data.get('critical_entities'),
+        latitude=data.get('latitude'),
+        longitude=data.get('longitude')
+    )
+    
+    # Save to database
+    db.session.add(analysis)
+    db.session.commit()
+    
+    return jsonify({
+        'id': analysis.id,
+        'message': 'Audio analysis saved successfully'
+    }), 201
+
+@api_bp.route('/audio-analysis/<int:analysis_id>', methods=['GET'])
+def get_audio_analysis(analysis_id):
+    analysis = AudioAnalysis.query.get_or_404(analysis_id)
+    
+    return jsonify({
+        'id': analysis.id,
+        'file_name': analysis.file_name,
+        'transcription': analysis.transcription,
+        'translation': analysis.translation,
+        'key_insights': analysis.key_insights,
+        'keywords': analysis.keywords,
+        'locations_mentioned': analysis.locations_mentioned,
+        'sentiment_summary': analysis.sentiment_summary,
+        'critical_entities': analysis.critical_entities,
+        'latitude': analysis.latitude,
+        'longitude': analysis.longitude,
+        'timestamp': analysis.timestamp.isoformat()
     })
 
 def get_priority(intel_data):

@@ -21,10 +21,9 @@ def alerts():
         .order_by(Alert.timestamp.desc())\
         .all()
     
-    # Combine alert and intel data
     alert_data = []
     for alert, intel in alerts:
-        alert.intel = intel
+        alert.intel = intel  # Ensure we're setting the full intel object
         alert_data.append(alert)
     
     return render_template('alerts.html', alerts=alert_data)

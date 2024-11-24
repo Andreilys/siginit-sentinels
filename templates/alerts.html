@@ -152,19 +152,13 @@ function showIntelDetails(alertId) {
                 <h5>Intelligence Details</h5>
                 <div class="row">
                     <div class="col-md-6">
-                        <p><strong>Source:</strong> ${data.intel.source}</p>
-                        <p><strong>Content:</strong> ${data.intel.content}</p>
-                        <p><strong>Credibility Score:</strong> ${data.intel.credibility_score}</p>
-                        <p><strong>Language:</strong> ${data.intel.language}</p>
-                        <p><strong>Location:</strong> ${data.intel.latitude}, ${data.intel.longitude}</p>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="media-preview mb-3">
-                            ${mediaPreview}
-                        </div>
-                        <div class="media-metadata small">
-                            ${data.intel.media_metadata ? JSON.stringify(data.intel.media_metadata, null, 2) : 'No metadata available'}
-                        </div>
+                        <p><strong>Intelligence Type:</strong> ${data.intel.intel_type || 'Unknown'}</p>
+                        <p><strong>Subtype:</strong> ${data.intel.intel_subtype || 'Not specified'}</p>
+                        <p><strong>Source Reliability:</strong> ${data.intel.source_reliability || 'Unknown'}</p>
+                        <p><strong>Information Credibility:</strong> ${data.intel.info_credibility || 'Unknown'}</p>
+                        <p><strong>Priority Level:</strong> ${data.priority}</p>
+                        <p><strong>Time:</strong> ${new Date(data.intel.timestamp).toLocaleDateString()}</p>
+                        <div class="content-preview">${data.intel.content || 'No content available'}</div>
                     </div>
                 </div>
             `;

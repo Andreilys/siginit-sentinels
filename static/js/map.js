@@ -324,6 +324,11 @@ window.drawTools = {
     },
     addPolygon: function(map, latlngs, options = {}) {
         return L.polygon(latlngs, options).addTo(map);
+    },
+    setColor: function(element, color) {
+        if (element && element.setStyle) {
+            element.setStyle({ color: color });
+        }
     }
 };
 

@@ -102,6 +102,19 @@ function getPriorityColor(priority) {
     }
 }
 
+function calculateAdmiraltyScore(reliability, credibility) {
+    // Convert letter grades to numbers (A=5, B=4, C=3, D=2, E=1, F=0)
+    const reliabilityScores = {'A': 5, 'B': 4, 'C': 3, 'D': 2, 'E': 1, 'F': 0};
+    // Convert credibility to numbers (ONE=5, TWO=4, etc)
+    const credibilityScores = {'ONE': 5, 'TWO': 4, 'THREE': 3, 'FOUR': 2, 'FIVE': 1, 'SIX': 0};
+    
+    const relScore = reliabilityScores[reliability] || 0;
+    const credScore = credibilityScores[credibility] || 0;
+    
+    // Calculate percentage (both factors weighted equally)
+    return ((relScore + credScore) / 10) * 100;
+}
+
 function addMarker(point) {
     const markerIcon = L.divIcon({
         className: 'custom-marker',
@@ -109,15 +122,21 @@ function addMarker(point) {
         iconSize: [12, 12]
     });
 
+    const admiraltyScore = calculateAdmiraltyScore(point.source_reliability, point.info_credibility);
+    const scoreColor = admiraltyScore >= 80 ? 'success' :
+                      admiraltyScore >= 60 ? 'primary' :
+                      admiraltyScore >= 40 ? 'warning' : 'danger';
+
     const marker = L.marker([point.latitude, point.longitude], { icon: markerIcon })
         .bindPopup(`
             <div class="intel-popup">
-                <h5 class="popup-title">${point.title}</h5>
+                <h5>${point.source || 'Unknown Source'}</h5>
                 <div class="popup-content">
                     <p><strong>Intelligence Type:</strong> ${point.intel_type}</p>
-                    <p><strong>Subtype:</strong> ${point.intel_subtype}</p>
-                    <p><strong>Source Reliability:</strong> ${point.source_reliability}</p>
-                    <p><strong>Information Credibility:</strong> ${point.info_credibility}</p>
+                    <p><strong>Subtype:</strong> ${point.intel_subtype || 'Unknown'}</p>
+                    <p><strong>Admiralty Score:</strong> 
+                        <span class="badge bg-${scoreColor}">${admiraltyScore.toFixed(1)}%</span>
+                    </p>
                     <p><strong>Priority Level:</strong> ${point.priority}</p>
                     <p><strong>Time:</strong> ${new Date(point.timestamp).toLocaleDateString()}</p>
                     <div class="content-preview">${point.content || 'No content available'}</div>

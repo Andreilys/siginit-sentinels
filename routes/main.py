@@ -1,6 +1,8 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, request, jsonify
 from flask_login import login_required
 from models import Alert, IntelligenceData
+from elasticsearch import Elasticsearch
+from datetime import datetime
 
 main_bp = Blueprint('main', __name__)
 
@@ -61,4 +63,58 @@ def reports():
 def calculate_threat_level():
     # Simple threat level calculation based on recent high-priority alerts
     high_priority_count = Alert.query.filter_by(priority=1).count()
+
+@main_bp.route('/telegram')
+@login_required
+def telegram():
+    return render_template('telegram.html')
+
+@main_bp.route('/api/telegram-data')
+@login_required
+def telegram_data():
+    es = Elasticsearch(['localhost:9200'])  # Default elasticsearch endpoint
+    
+    # Get filter parameters
+    query = request.args.get('query', '')
+    channel = request.args.get('channel', '')
+    language = request.args.get('language', '')
+    start_date = request.args.get('start_date', '')
+    end_date = request.args.get('end_date', '')
+    
+    # Build Elasticsearch query
+    must_conditions = []
+    if query:
+        must_conditions.append({"multi_match": {
+            "query": query,
+            "fields": ["content", "title"]
+        }})
+    if channel:
+        must_conditions.append({"match": {"channel": channel}})
+    if language:
+        must_conditions.append({"match": {"language": language}})
+    if start_date and end_date:
+        must_conditions.append({
+            "range": {
+                "timestamp": {
+                    "gte": start_date,
+                    "lte": end_date
+                }
+            }
+        })
+    
+    body = {
+        "query": {
+            "bool": {
+                "must": must_conditions if must_conditions else [{"match_all": {}}]
+            }
+        },
+        "sort": [{"timestamp": "desc"}],
+        "size": 100
+    }
+    
+    try:
+        result = es.search(index="telegram_data", body=body)
+        return jsonify(result['hits']['hits'])
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
     return min(high_priority_count * 20, 100)  # 20% per high-priority alert, max 100%

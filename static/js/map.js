@@ -102,6 +102,49 @@ function getPriorityColor(priority) {
     }
 }
 
+function generateReliabilityOptions(selectedValue) {
+    const options = [
+        ['A', 'A - Completely reliable'],
+        ['B', 'B - Usually reliable'],
+        ['C', 'C - Fairly reliable'],
+        ['D', 'D - Not usually reliable'],
+        ['E', 'E - Unreliable'],
+        ['F', 'F - Reliability cannot be judged']
+    ];
+    
+    return options.map(([value, label]) => 
+        `<option value="${value}" ${value === selectedValue ? 'selected' : ''}>${label}</option>`
+    ).join('');
+}
+
+function generateCredibilityOptions(selectedValue) {
+    const options = [
+        ['ONE', '1 - Confirmed by other sources'],
+        ['TWO', '2 - Probably true'],
+        ['THREE', '3 - Possibly true'],
+        ['FOUR', '4 - Doubtful'],
+        ['FIVE', '5 - Improbable'],
+        ['SIX', '6 - Truth cannot be judged']
+    ];
+    
+    return options.map(([value, label]) => 
+        `<option value="${value}" ${value === selectedValue ? 'selected' : ''}>${label}</option>`
+    ).join('');
+}
+
+function calculatePriority(admiraltyScore) {
+    if (admiraltyScore >= 80) return 1; // High priority
+    if (admiraltyScore >= 50) return 2; // Medium priority
+    return 3; // Low priority
+}
+
+function getScoreColor(admiraltyScore) {
+    if (admiraltyScore >= 80) return 'success';
+    if (admiraltyScore >= 60) return 'primary';
+    if (admiraltyScore >= 40) return 'warning';
+    return 'danger';
+}
+
 function calculateAdmiraltyScore(reliability, credibility) {
     // Convert letter grades to numbers (A=5, B=4, C=3, D=2, E=1, F=0)
     const reliabilityScores = {'A': 5, 'B': 4, 'C': 3, 'D': 2, 'E': 1, 'F': 0};
@@ -123,26 +166,50 @@ function addMarker(point) {
     });
 
     const admiraltyScore = calculateAdmiraltyScore(point.source_reliability, point.info_credibility);
-    const scoreColor = admiraltyScore >= 80 ? 'success' :
-                      admiraltyScore >= 60 ? 'primary' :
-                      admiraltyScore >= 40 ? 'warning' : 'danger';
-
-    const marker = L.marker([point.latitude, point.longitude], { icon: markerIcon })
-        .bindPopup(`
-            <div class="intel-popup">
-                <h5>${point.source || 'Unknown Source'}</h5>
-                <div class="popup-content">
-                    <p><strong>Intelligence Type:</strong> ${point.intel_type}</p>
-                    <p><strong>Subtype:</strong> ${point.intel_subtype || 'Unknown'}</p>
-                    <p><strong>Admiralty Score:</strong> 
-                        <span class="badge bg-${scoreColor}">${admiraltyScore.toFixed(1)}%</span>
-                    </p>
-                    <p><strong>Priority Level:</strong> ${point.priority}</p>
-                    <p><strong>Time:</strong> ${new Date(point.timestamp).toLocaleDateString()}</p>
-                    <div class="content-preview">${point.content || 'No content available'}</div>
+    const priority = calculatePriority(admiraltyScore);
+    
+    const popupContent = `
+        <div class="intel-popup">
+            <h5>${point.source || 'Unknown Source'}</h5>
+            <div class="popup-content">
+                <p><strong>Intelligence Type:</strong> ${point.intel_type}</p>
+                <p><strong>Subtype:</strong> ${point.intel_subtype || 'Unknown'}</p>
+                <div class="mb-2">
+                    <label><strong>Source Reliability:</strong></label>
+                    <select class="form-select form-select-sm reliability-select" data-intel-id="${point.id}">
+                        ${generateReliabilityOptions(point.source_reliability)}
+                    </select>
                 </div>
+                <div class="mb-2">
+                    <label><strong>Information Credibility:</strong></label>
+                    <select class="form-select form-select-sm credibility-select" data-intel-id="${point.id}">
+                        ${generateCredibilityOptions(point.info_credibility)}
+                    </select>
+                </div>
+                <p><strong>Admiralty Score:</strong> 
+                    <span class="badge bg-${getScoreColor(admiraltyScore)}">${admiraltyScore.toFixed(1)}%</span>
+                </p>
+                <p><strong>Priority Level:</strong> ${priority}</p>
+                <p><strong>Time:</strong> ${new Date(point.timestamp).toLocaleDateString()}</p>
+                <div class="content-preview">${point.content || 'No content available'}</div>
+                <button class="btn btn-primary btn-sm mt-2 update-scores-btn" data-intel-id="${point.id}">
+                    Update Scores
+                </button>
             </div>
-        `);
+        </div>
+    `;
+    
+    // Add event listeners for score updates
+    const popup = L.popup().setContent(popupContent);
+    popup.on('add', () => {
+        const updateBtn = document.querySelector(`.update-scores-btn[data-intel-id="${point.id}"]`);
+        if (updateBtn) {
+            updateBtn.addEventListener('click', () => updateIntelScores(point.id));
+        }
+    });
+    
+    const marker = L.marker([point.latitude, point.longitude], { icon: markerIcon })
+        .bindPopup(popup);
     
     markers.push(marker);
     marker.addTo(map);
@@ -174,6 +241,26 @@ function setupFilters() {
     
     subtypeSelect.disabled = true;
     
+function updateIntelScores(intelId) {
+    const reliability = document.querySelector(`.reliability-select[data-intel-id="${intelId}"]`).value;
+    const credibility = document.querySelector(`.credibility-select[data-intel-id="${intelId}"]`).value;
+    
+    fetch('/api/intel-points/' + intelId + '/scores', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({ reliability, credibility })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            loadIntelPoints(); // Refresh markers
+            updateStatistics(); // Update dashboard stats
+        }
+    });
+}
     typeSelect.addEventListener('change', function(e) {
         const selectedType = e.target.value;
         subtypeSelect.innerHTML = '<option value="">All Subtypes</option>';

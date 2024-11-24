@@ -142,23 +142,113 @@ function generateMediaPreview(intel) {
 }
 
 // Core functions
+function calculateAdmiraltyScore(reliability, credibility) {
+    const reliabilityScores = {'A': 5, 'B': 4, 'C': 3, 'D': 2, 'E': 1, 'F': 0};
+    const credibilityScores = {'ONE': 5, 'TWO': 4, 'THREE': 3, 'FOUR': 2, 'FIVE': 1, 'SIX': 0};
+    
+    const relScore = reliabilityScores[reliability] || 0;
+    const credScore = credibilityScores[credibility] || 0;
+    
+    return ((relScore + credScore) / 10) * 100;
+}
+
+function generateReliabilityOptions(selected) {
+    const options = [
+        ['A', 'A - Completely reliable'],
+        ['B', 'B - Usually reliable'],
+        ['C', 'C - Fairly reliable'],
+        ['D', 'D - Not usually reliable'],
+        ['E', 'E - Unreliable'],
+        ['F', 'F - Cannot be judged']
+    ];
+    return options.map(([value, label]) =>
+        `<option value="${value}" ${value === selected ? 'selected' : ''}>${label}</option>`
+    ).join('');
+}
+
+function generateCredibilityOptions(selected) {
+    const options = [
+        ['ONE', '1 - Confirmed'],
+        ['TWO', '2 - Probably true'],
+        ['THREE', '3 - Possibly true'],
+        ['FOUR', '4 - Doubtful'],
+        ['FIVE', '5 - Improbable'],
+        ['SIX', '6 - Cannot be judged']
+    ];
+    return options.map(([value, label]) =>
+        `<option value="${value}" ${value === selected ? 'selected' : ''}>${label}</option>`
+    ).join('');
+}
+
 function showIntelDetails(alertId) {
     fetch(`/api/alerts/${alertId}/details`)
         .then(response => response.json())
         .then(data => {
+            const admiraltyScore = calculateAdmiraltyScore(data.intel.source_reliability, data.intel.info_credibility);
+            const scoreColor = admiraltyScore >= 80 ? 'success' :
+                             admiraltyScore >= 60 ? 'primary' :
+                             admiraltyScore >= 40 ? 'warning' : 'danger';
+            
             const modal = new bootstrap.Modal(document.getElementById('intelModal'));
-            const mediaPreview = generateMediaPreview(data.intel);
             document.getElementById('intelModalContent').innerHTML = `
                 <h5>Intelligence Details</h5>
                 <div class="row">
                     <div class="col-md-6">
                         <p><strong>Intelligence Type:</strong> ${data.intel.intel_type || 'Unknown'}</p>
                         <p><strong>Subtype:</strong> ${data.intel.intel_subtype || 'Not specified'}</p>
-                        <p><strong>Source Reliability:</strong> ${data.intel.source_reliability || 'Unknown'}</p>
-                        <p><strong>Information Credibility:</strong> ${data.intel.info_credibility || 'Unknown'}</p>
-                        <p><strong>Priority Level:</strong> ${data.priority}</p>
+                        <div class="mb-2">
+                            <label><strong>Source Reliability:</strong></label>
+function updateIntelScores(intelId) {
+    const reliability = document.querySelector(`.reliability-select[data-intel-id="${intelId}"]`).value;
+    const credibility = document.querySelector(`.credibility-select[data-intel-id="${intelId}"]`).value;
+    
+    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    
+    fetch('/api/intel-points/' + intelId + '/scores', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': token
+        },
+        body: JSON.stringify({ reliability, credibility })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload(); // Refresh to show updated scores
+        }
+    })
+    .catch(error => {
+        console.error('Error updating scores:', error);
+    });
+}
+
+// Add event listener for score updates
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('intelModal').addEventListener('click', function(e) {
+        if (e.target.classList.contains('update-scores-btn')) {
+            updateIntelScores(e.target.dataset.intelId);
+        }
+    });
+});
+                            <select class="form-select form-select-sm reliability-select" data-intel-id="${data.intel.id}">
+                                ${generateReliabilityOptions(data.intel.source_reliability)}
+                            </select>
+                        </div>
+                        <div class="mb-2">
+                            <label><strong>Information Credibility:</strong></label>
+                            <select class="form-select form-select-sm credibility-select" data-intel-id="${data.intel.id}">
+                                ${generateCredibilityOptions(data.intel.info_credibility)}
+                            </select>
+                        </div>
+                        <p><strong>Admiralty Score:</strong> 
+                            <span class="badge bg-${scoreColor}">${admiraltyScore.toFixed(1)}%</span>
+                        </p>
                         <p><strong>Time:</strong> ${new Date(data.intel.timestamp).toLocaleDateString()}</p>
                         <div class="content-preview">${data.intel.content || 'No content available'}</div>
+                        <button class="btn btn-primary btn-sm mt-2 update-scores-btn" data-intel-id="${data.intel.id}">
+                            Update Scores
+                        </button>
                     </div>
                 </div>
             `;

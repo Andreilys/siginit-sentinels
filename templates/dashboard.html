@@ -19,24 +19,6 @@
                             <option value="CYBERINT">CYBERINT (Cyber)</option>
                         </select>
                     </div>
-                    <div class="row mb-3">
-                        <div class="col-md-4">
-                            <label class="form-label">Date Range</label>
-                            <div class="btn-group w-100">
-                                <button class="btn btn-outline-secondary" data-timerange="today">Today</button>
-                                <button class="btn btn-outline-secondary" data-timerange="week">Week</button>
-                                <button class="btn btn-outline-secondary" data-timerange="month">Month</button>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Custom Range</label>
-                            <div class="d-flex">
-                                <input type="date" id="start-date" class="form-control">
-                                <span class="mx-2 align-self-center">to</span>
-                                <input type="date" id="end-date" class="form-control">
-                            </div>
-                        </div>
-                    </div>
                     <div class="col-md-3">
                         <select class="form-select" id="intel-subtype-filter" disabled>
                             <option value="">Subtype</option>
@@ -63,6 +45,24 @@
                             <option value="FIVE">5 - Improbable</option>
                             <option value="SIX">6 - Cannot Judge</option>
                         </select>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Date Range</label>
+                            <div class="btn-group w-100">
+                                <button class="btn btn-outline-secondary" data-timerange="today">Today</button>
+                                <button class="btn btn-outline-secondary" data-timerange="week">Week</button>
+                                <button class="btn btn-outline-secondary" data-timerange="month">Month</button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Custom Range</label>
+                            <div class="d-flex">
+                                <input type="date" id="start-date" class="form-control">
+                                <span class="mx-2 align-self-center">to</span>
+                                <input type="date" id="end-date" class="form-control">
+                            </div>
+                        </div>
                     </div>
                     <div class="col-12 text-end mb-3">
                         <button type="button" id="apply-filters" class="btn btn-primary">Apply Filters</button>

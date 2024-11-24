@@ -222,6 +222,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const range = this.dataset.timerange;
             const now = new Date();
             let startDate = new Date();
+            const endDate = document.getElementById('end-date');
+            const startDatePicker = document.getElementById('start-date');
             
             switch(range) {
                 case 'today':
@@ -233,15 +235,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 case 'month':
                     startDate.setMonth(startDate.getMonth() - 1);
                     break;
-                case 'year':
-                    startDate.setFullYear(startDate.getFullYear() - 1);
-                    break;
-                case 'all':
-                    startDate = null;
-                    break;
             }
             
-            initializeTimeline(startDate, range === 'all' ? null : new Date());
+            // Update date picker values
+            startDatePicker.value = startDate.toISOString().split('T')[0];
+            endDate.value = new Date().toISOString().split('T')[0];
+            
+            // Update timeline
+            initializeTimeline(startDate, new Date());
         });
     });
     

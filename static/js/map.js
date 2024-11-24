@@ -162,11 +162,11 @@ function setupFilters() {
         
         if (selectedType) {
             const subtypes = {
-                'IMINT': ['Satellite imagery', 'Drone surveillance', 'Aerial photography', 'Ground-based photography'],
-                'SIGINT': ['Radio intercepts', 'Communications monitoring', 'Electronic signals', 'Encryption analysis'],
-                'HUMINT': ['Spies and covert operatives', 'Informants', 'Diplomatic sources', 'Prisoner interrogations'],
-                'OSINT': ['Social media monitoring', 'News media and publications', 'Academic research', 'Public forums and websites'],
-                'CYBERINT': ['Malware analysis', 'Dark web monitoring', 'Network traffic analysis', 'Threat intelligence feeds']
+                'IMINT': ['Satellite', 'Drone', 'Aerial'],
+                'SIGINT': ['Radio', 'Communications', 'Signals'],
+                'HUMINT': ['Informants', 'Diplomats', 'Agents'],
+                'OSINT': ['Social Media', 'News', 'Publications'],
+                'CYBERINT': ['Network', 'Malware', 'Dark Web']
             };
             
             subtypes[selectedType].forEach(subtype => {

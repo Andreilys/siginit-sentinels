@@ -9,10 +9,21 @@ api_bp = Blueprint('api', __name__, url_prefix='/api')
 @api_bp.route('/intel-points')
 @login_required
 def get_intel_points():
-    intel_data = IntelligenceData.query.filter(
+    query = IntelligenceData.query.filter(
         IntelligenceData.latitude.isnot(None),
         IntelligenceData.longitude.isnot(None)
-    ).all()
+    )
+    
+    if intel_type := request.args.get('type'):
+        query = query.filter(IntelligenceData.intel_type == intel_type)
+    if subtype := request.args.get('subtype'):
+        query = query.filter(IntelligenceData.intel_subtype == subtype)
+    if reliability := request.args.get('reliability'):
+        query = query.filter(IntelligenceData.source_reliability == reliability)
+    if credibility := request.args.get('credibility'):
+        query = query.filter(IntelligenceData.info_credibility == credibility)
+    
+    intel_data = query.all()
     
     return jsonify([{
         'latitude': point.latitude,
@@ -22,7 +33,11 @@ def get_intel_points():
         'timestamp': point.timestamp.isoformat(),
         'priority': get_priority(point),
         'credibility_score': point.credibility_score,
-        'content': point.content
+        'content': point.content,
+        'intel_type': point.intel_type.name if point.intel_type else None,
+        'intel_subtype': point.intel_subtype or 'Unknown',
+        'source_reliability': point.source_reliability.name if point.source_reliability else None,
+        'info_credibility': point.info_credibility.name if point.info_credibility else None
     } for point in intel_data])
 
 @api_bp.route('/threat-level')
@@ -132,3 +147,46 @@ def get_priority(intel_data):
     elif intel_data.credibility_score >= 0.5:
         return 2
     return 3
+
+from models import IntelType, IntelligenceData, Alert, SourceReliability, InfoCredibility
+
+@api_bp.route('/statistics')
+@login_required
+def get_statistics():
+    # Calculate Admiralty scores for each intel record
+    def calculate_admiralty_score(reliability, credibility):
+        # Convert letter grades to numbers (A=5, B=4, C=3, D=2, E=1, F=0)
+        reliability_scores = {'A': 5, 'B': 4, 'C': 3, 'D': 2, 'E': 1, 'F': 0}
+        # Convert credibility to numbers (ONE=5, TWO=4, etc)
+        credibility_scores = {'ONE': 5, 'TWO': 4, 'THREE': 3, 'FOUR': 2, 'FIVE': 1, 'SIX': 0}
+        
+        rel_score = reliability_scores.get(reliability, 0)
+        cred_score = credibility_scores.get(credibility, 0)
+        
+        # Calculate percentage (both factors weighted equally)
+        # Maximum possible score is 5+5=10, so divide by 10 for percentage
+        return ((rel_score + cred_score) / 10) * 100
+
+    # Get intel records with their Admiralty scores
+    intel_records = db.session.query(
+        IntelligenceData.intel_type,
+        IntelligenceData.source_reliability,
+        IntelligenceData.info_credibility
+    ).all()
+    
+    # Calculate statistics
+    type_scores = {}
+    for intel_type in IntelType:
+        type_records = [r for r in intel_records if r[0] == intel_type]
+        if type_records:
+            scores = [calculate_admiralty_score(r[1].name, r[2].name) for r in type_records]
+            type_scores[intel_type.name] = {
+                'count': len(scores),
+                'average_score': sum(scores) / len(scores),
+                'max_score': max(scores),
+                'min_score': min(scores)
+            }
+
+    return jsonify({
+        'intelTypes': type_scores
+    })

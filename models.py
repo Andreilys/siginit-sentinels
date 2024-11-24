@@ -1,8 +1,38 @@
 from datetime import datetime
+import enum
+from sqlalchemy.types import JSON
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from app import db
+class MediaType(enum.Enum):
+    text = 'text'
+    image = 'image'
+    video = 'video'
+    audio = 'audio'
+
+class IntelType(enum.Enum):
+    IMINT = 'IMINT'
+    SIGINT = 'SIGINT'
+    HUMINT = 'HUMINT'
+    OSINT = 'OSINT'
+    CYBERINT = 'CYBERINT'
+
+class SourceReliability(enum.Enum):
+    A = 'A'  # Completely reliable
+    B = 'B'  # Usually reliable
+    C = 'C'  # Fairly reliable
+    D = 'D'  # Not usually reliable
+    E = 'E'  # Unreliable
+    F = 'F'  # Reliability cannot be judged
+
+class InfoCredibility(enum.Enum):
+    ONE = '1'    # Confirmed by other sources
+    TWO = '2'    # Probably true
+    THREE = '3'  # Possibly true
+    FOUR = '4'   # Doubtful
+    FIVE = '5'   # Improbable
+    SIX = '6'    # Truth cannot be judged
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -27,6 +57,14 @@ class IntelligenceData(db.Model):
     latitude = db.Column(db.Float)
     longitude = db.Column(db.Float)
     verified = db.Column(db.Boolean, default=False)
+    media_type = db.Column(db.Enum(MediaType), default=MediaType.text)
+    media_url = db.Column(db.String(500))
+    media_metadata = db.Column(JSON)
+    # New fields for intelligence classification
+    intel_type = db.Column(db.Enum(IntelType), nullable=False, default=IntelType.OSINT)
+    intel_subtype = db.Column(db.String(50))
+    source_reliability = db.Column(db.Enum(SourceReliability), nullable=False, default=SourceReliability.F)
+    info_credibility = db.Column(db.Enum(InfoCredibility), nullable=False, default=InfoCredibility.SIX)
 
 class Alert(db.Model):
     id = db.Column(db.Integer, primary_key=True)

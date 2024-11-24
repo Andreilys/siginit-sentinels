@@ -1,6 +1,8 @@
+from flask.cli import FlaskGroup
 from dotenv import load_dotenv
 import os
 from app import create_app, socketio, db
+from flask_migrate import Migrate, upgrade
 import logging
 
 # Load environment variables from .env file

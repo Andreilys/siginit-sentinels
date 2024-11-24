@@ -99,6 +99,73 @@
 </div>
 
 <script>
+// Socket.IO is initialized in base.html
+
+// Utility functions
+function generateMediaPreview(intel) {
+    if (!intel || !intel.media_type || !intel.media_url) {
+        return '<div class="alert alert-info">No media content available</div>';
+    }
+
+    switch (intel.media_type) {
+        case 'image':
+            return `
+                <div class="image-preview">
+                    <img src="${intel.media_url}" 
+                         class="img-fluid rounded" 
+                         alt="Intelligence Image"
+                         onerror="this.onerror=null; this.src='/static/images/image-fallback.svg';">
+                </div>`;
+        case 'video':
+            return `
+                <div class="video-preview">
+                    <video class="w-100 rounded" controls>
+                        <source src="${intel.media_url}" type="video/mp4">
+                        Your browser does not support video playback.
+                    </video>
+                </div>`;
+        case 'audio':
+            return `
+                <div class="audio-preview">
+                    <audio class="w-100" controls>
+                        <source src="${intel.media_url}" type="audio/mpeg">
+                        Your browser does not support audio playback.
+                    </audio>
+                </div>`;
+        case 'text':
+        default:
+            return `
+                <div class="text-preview">
+                    <pre class="bg-dark text-light p-3 rounded">${intel.content || 'No text content available'}</pre>
+                </div>`;
+    }
+}
+
+// Core functions
+function showIntelDetails(alertId) {
+    fetch(`/api/alerts/${alertId}/details`)
+        .then(response => response.json())
+        .then(data => {
+            const modal = new bootstrap.Modal(document.getElementById('intelModal'));
+            const mediaPreview = generateMediaPreview(data.intel);
+            document.getElementById('intelModalContent').innerHTML = `
+                <h5>Intelligence Details</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Intelligence Type:</strong> ${data.intel.intel_type || 'Unknown'}</p>
+                        <p><strong>Subtype:</strong> ${data.intel.intel_subtype || 'Not specified'}</p>
+                        <p><strong>Source Reliability:</strong> ${data.intel.source_reliability || 'Unknown'}</p>
+                        <p><strong>Information Credibility:</strong> ${data.intel.info_credibility || 'Unknown'}</p>
+                        <p><strong>Priority Level:</strong> ${data.priority}</p>
+                        <p><strong>Time:</strong> ${new Date(data.intel.timestamp).toLocaleDateString()}</p>
+                        <div class="content-preview">${data.intel.content || 'No content available'}</div>
+                    </div>
+                </div>
+            `;
+            modal.show();
+        });
+}
+
 function acknowledgeAlert(alertId) {
     const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     fetch(`/api/alerts/${alertId}/acknowledge`, {
@@ -131,37 +198,23 @@ function resolveAlert(alertId) {
     });
 }
 
-function showIntelDetails(alertId) {
-    fetch(`/api/alerts/${alertId}/details`)
-        .then(response => response.json())
-        .then(data => {
-            // Create modal with intel details
-            const modal = new bootstrap.Modal(document.getElementById('intelModal'));
-            document.getElementById('intelModalContent').innerHTML = `
-                <h5>Intelligence Details</h5>
-                <p><strong>Source:</strong> ${data.intel.source}</p>
-                <p><strong>Content:</strong> ${data.intel.content}</p>
-                <p><strong>Credibility Score:</strong> ${data.intel.credibility_score}</p>
-                <p><strong>Language:</strong> ${data.intel.language}</p>
-                <p><strong>Location:</strong> ${data.intel.latitude}, ${data.intel.longitude}</p>
-            `;
-            modal.show();
-        });
-}
-
-document.querySelectorAll('[data-filter]').forEach(button => {
-    button.addEventListener('click', (e) => {
-        const filter = e.target.dataset.filter;
-        const rows = document.querySelectorAll('#alerts-table tr');
-        
-        rows.forEach(row => {
-            if (filter === 'all') {
-                row.style.display = '';
-            } else {
-                const priority = row.className.includes('priority-1') ? 'high' :
-                               row.className.includes('priority-2') ? 'medium' : 'low';
-                row.style.display = priority === filter ? '' : 'none';
-            }
+// Event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Filter buttons event listeners
+    document.querySelectorAll('[data-filter]').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const filter = e.target.dataset.filter;
+            const rows = document.querySelectorAll('#alerts-table tr');
+            
+            rows.forEach(row => {
+                if (filter === 'all') {
+                    row.style.display = '';
+                } else {
+                    const priority = row.className.includes('priority-1') ? 'high' :
+                                   row.className.includes('priority-2') ? 'medium' : 'low';
+                    row.style.display = priority === filter ? '' : 'none';
+                }
+            });
         });
     });
 });

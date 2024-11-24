@@ -8,6 +8,79 @@
                 <h5 class="card-title">Intelligence Map</h5>
             </div>
             <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <select class="form-select" id="intel-type-filter">
+                            <option value="">Intel Type</option>
+                            <option value="IMINT">IMINT (Imagery)</option>
+                            <option value="SIGINT">SIGINT (Signals)</option>
+                            <option value="HUMINT">HUMINT (Human)</option>
+                            <option value="OSINT">OSINT (Open Source)</option>
+                            <option value="CYBERINT">CYBERINT (Cyber)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="intel-subtype-filter" disabled>
+                            <option value="">Subtype</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="source-reliability-filter">
+                            <option value="">Reliability</option>
+                            <option value="A">A - Completely</option>
+                            <option value="B">B - Usually</option>
+                            <option value="C">C - Fairly</option>
+                            <option value="D">D - Not Usually</option>
+                            <option value="E">E - Unreliable</option>
+                            <option value="F">F - Cannot Judge</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="info-credibility-filter">
+                            <option value="">Credibility</option>
+                            <option value="ONE">1 - Confirmed</option>
+                            <option value="TWO">2 - Probable</option>
+                            <option value="THREE">3 - Possible</option>
+                            <option value="FOUR">4 - Doubtful</option>
+                            <option value="FIVE">5 - Improbable</option>
+                            <option value="SIX">6 - Cannot Judge</option>
+                        </select>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Date Range</label>
+                            <div class="btn-group w-100">
+                                <button class="btn btn-outline-secondary" data-timerange="today">Today</button>
+                                <button class="btn btn-outline-secondary" data-timerange="week">Week</button>
+                                <button class="btn btn-outline-secondary" data-timerange="month">Month</button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Custom Range</label>
+                            <div class="d-flex">
+                                <input type="date" id="start-date" class="form-control">
+                                <span class="mx-2 align-self-center">to</span>
+                                <input type="date" id="end-date" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="heatmap-controls">
+                                <div class="btn-group">
+                                    <button class="btn btn-outline-secondary active" data-view="markers">Markers</button>
+                                    <button class="btn btn-outline-secondary" data-view="heatmap">Heatmap</button>
+                                </div>
+                                <div class="intensity-legend mt-2">
+                                    <span class="badge bg-danger">High</span>
+                                    <span class="badge bg-warning">Medium</span>
+                                    <span class="badge bg-info">Low</span>
+                                </div>
+                            </div>
+                            <button type="button" id="apply-filters" class="btn btn-primary">Apply Filters</button>
+                        </div>
+                    </div>
+                </div>
                 <div id="map" style="height: 500px;"></div>
             </div>
         </div>
@@ -31,11 +104,27 @@
         
         <div class="card">
             <div class="card-header">
-                <h5 class="card-title">Threat Level</h5>
+                <h5 class="card-title">Intelligence Breakdown</h5>
             </div>
             <div class="card-body">
-                <div class="progress">
-                    <div class="progress-bar bg-danger" role="progressbar" style="width: {{ threat_level }}%"></div>
+                <div class="mb-3">
+                    <h6>Priority Distribution</h6>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>High Priority:</span>
+                        <span id="high-priority-count" class="badge bg-danger">0</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Medium Priority:</span>
+                        <span id="medium-priority-count" class="badge bg-warning">0</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Low Priority:</span>
+                        <span id="low-priority-count" class="badge bg-info">0</span>
+                    </div>
+                </div>
+                <div>
+                    <h6>Intelligence Types</h6>
+                    <div id="intel-type-breakdown"></div>
                 </div>
             </div>
         </div>
@@ -49,9 +138,36 @@
                 <h5 class="card-title">Intelligence Timeline</h5>
             </div>
             <div class="card-body">
-                <div id="intel-timeline" class="timeline-container">
-                    <!-- Timeline items will be added here dynamically -->
+                <div class="timeline-controls mb-3">
+                    <div class="btn-group me-3">
+                        <button class="btn btn-outline-secondary" data-timerange="today">Today</button>
+                        <button class="btn btn-outline-secondary" data-timerange="week">Last Week</button>
+                        <button class="btn btn-outline-secondary" data-timerange="month">Last Month</button>
+                        <button class="btn btn-outline-secondary" data-timerange="year">Last Year</button>
+                        <button class="btn btn-outline-secondary" data-timerange="all">All Time</button>
+                    </div>
+                    <div class="date-range-picker me-3">
+                        <input type="date" id="timeline-start-date" class="form-control">
+                        <span class="mx-2">to</span>
+                        <input type="date" id="timeline-end-date" class="form-control">
+                    </div>
+                    <button class="btn btn-primary" id="apply-date-filter">Apply Filter</button>
+                    <div class="btn-group ms-3">
+                        <button class="btn btn-outline-secondary" id="timeline-zoom-out">
+                            <i class="fas fa-search-minus"></i>
+                        </button>
+                        <button class="btn btn-outline-secondary" id="timeline-zoom-in">
+                            <i class="fas fa-search-plus"></i>
+                        </button>
+                        <button class="btn btn-outline-secondary" id="timeline-refresh">
+                            <i class="fas fa-sync"></i>
+                        </button>
+                        <button class="btn btn-outline-secondary" id="timeline-play">
+                            <i class="fas fa-play"></i>
+                        </button>
+                    </div>
                 </div>
+                <div id="intelligence-timeline" style="height: 200px;"></div>
             </div>
         </div>
     </div>

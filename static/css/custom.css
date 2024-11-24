@@ -151,3 +151,7 @@
 .leaflet-popup-tip {
     background-color: var(--bs-dark);
 }
+.btn-outline-secondary.active {
+    background-color: #6c757d;
+    color: white;
+}

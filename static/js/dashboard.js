@@ -128,11 +128,106 @@ function initTimeline() {
     fetch('/api/intel-points')
         .then(response => response.json())
         .then(data => {
-            // Sort data by timestamp in descending order
-            data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-            updateTimeline(data);
+            window.intelData = data;
+            initializeTimeline();
         });
 }
+
+function initializeTimeline() {
+    const timelineData = [];
+    const timelineDates = {};
+    
+    // Process intelligence data into timeline format
+    intelData.forEach(item => {
+        const date = new Date(item.timestamp).toISOString().split('T')[0];
+        if (!timelineDates[date]) {
+            timelineDates[date] = 0;
+        }
+        timelineDates[date]++;
+    });
+    
+    // Convert to array format for visualization
+    Object.keys(timelineDates).sort().forEach(date => {
+        timelineData.push({
+            date: date,
+            count: timelineDates[date]
+        });
+    });
+    
+    // Clear existing timeline
+    document.getElementById('intelligence-timeline').innerHTML = '';
+    
+    // Create timeline chart using D3.js
+    const margin = {top: 20, right: 20, bottom: 30, left: 40};
+    const width = document.getElementById('intelligence-timeline').offsetWidth - margin.left - margin.right;
+    const height = 200 - margin.top - margin.bottom;
+    
+    const svg = d3.select('#intelligence-timeline')
+        .append('svg')
+        .attr('width', width + margin.left + margin.right)
+        .attr('height', height + margin.top + margin.bottom)
+        .append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`);
+        
+    // Add X axis
+    const x = d3.scaleTime()
+        .domain(d3.extent(timelineData, d => new Date(d.date)))
+        .range([0, width]);
+    
+    svg.append('g')
+        .attr('transform', `translate(0,${height})`)
+        .call(d3.axisBottom(x));
+        
+    // Add Y axis
+    const y = d3.scaleLinear()
+        .domain([0, d3.max(timelineData, d => d.count)])
+        .range([height, 0]);
+        
+    svg.append('g')
+        .call(d3.axisLeft(y));
+        
+    // Add the bars
+    svg.selectAll('rect')
+        .data(timelineData)
+        .enter()
+        .append('rect')
+        .attr('x', d => x(new Date(d.date)))
+        .attr('y', d => y(d.count))
+        .attr('width', width / timelineData.length - 1)
+        .attr('height', d => height - y(d.count))
+        .attr('fill', '#4a90e2');
+}
+
+function refreshTimeline() {
+    fetch('/api/intel-points')
+        .then(response => response.json())
+        .then(data => {
+            window.intelData = data;
+            initializeTimeline();
+        });
+}
+
+// Add event listeners for timeline controls
+document.addEventListener('DOMContentLoaded', function() {
+    const zoomIn = document.getElementById('timeline-zoom-in');
+    const zoomOut = document.getElementById('timeline-zoom-out');
+    const refresh = document.getElementById('timeline-refresh');
+    const play = document.getElementById('timeline-play');
+
+    if (zoomIn) zoomIn.addEventListener('click', () => {
+        // Implement zoom in functionality
+    });
+
+    if (zoomOut) zoomOut.addEventListener('click', () => {
+        // Implement zoom out functionality
+    });
+
+    if (refresh) refresh.addEventListener('click', refreshTimeline);
+
+    if (play) play.addEventListener('click', () => {
+        // Implement play/pause functionality
+    });
+});
 
 function updateTimeline(events) {
     const timelineContainer = document.getElementById('intel-timeline');

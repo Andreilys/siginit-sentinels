@@ -91,9 +91,21 @@
                 <h5 class="card-title">Intelligence Timeline</h5>
             </div>
             <div class="card-body">
-                <div id="intel-timeline" class="timeline-container">
-                    <!-- Timeline items will be added here dynamically -->
+                <div class="timeline-controls mb-3">
+                    <button class="btn btn-outline-secondary" id="timeline-zoom-out">
+                        <i class="fas fa-search-minus"></i>
+                    </button>
+                    <button class="btn btn-outline-secondary" id="timeline-zoom-in">
+                        <i class="fas fa-search-plus"></i>
+                    </button>
+                    <button class="btn btn-outline-secondary" id="timeline-refresh">
+                        <i class="fas fa-sync"></i>
+                    </button>
+                    <button class="btn btn-outline-secondary" id="timeline-play">
+                        <i class="fas fa-play"></i>
+                    </button>
                 </div>
+                <div id="intelligence-timeline" style="height: 200px;"></div>
             </div>
         </div>
     </div>

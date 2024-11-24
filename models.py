@@ -74,7 +74,6 @@ class Alert(db.Model):
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     status = db.Column(db.String(20))  # new, acknowledged, resolved
     intel_id = db.Column(db.Integer, db.ForeignKey('intelligence_data.id'))
-<<<<<<< HEAD
 
 class ConversationAnalysis(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -92,5 +91,3 @@ class ConversationAnalysis(db.Model):
     conversation_duration = db.Column(db.String(50), nullable=False)  # Short, Medium, Long
     analyzed_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-=======
->>>>>>> 31a7b0d (Restored to 'f2f54e23bd383fb654e2f126b94e246f90034721')

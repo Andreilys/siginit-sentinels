@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <h2>Audio Conversation Analysis</h2>
+    
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Filters</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <label for="priorityFilter">Priority Level</label>
+                    <select class="form-select" id="priorityFilter">
+                        <option value="">All</option>
+                        <option value="High">High</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Low">Low</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="reliabilityFilter">Source Reliability</label>
+                    <select class="form-select" id="reliabilityFilter">
+                        <option value="">All</option>
+                        <option value="A - Completely reliable">A - Completely reliable</option>
+                        <option value="B - Usually reliable">B - Usually reliable</option>
+                        <option value="C - Fairly reliable">C - Fairly reliable</option>
+                        <option value="D - Not usually reliable">D - Not usually reliable</option>
+                        <option value="E - Unreliable">E - Unreliable</option>
+                        <option value="F - Cannot be judged">F - Cannot be judged</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="credibilityFilter">Information Credibility</label>
+                    <select class="form-select" id="credibilityFilter">
+                        <option value="">All</option>
+                        <option value="1 - Confirmed">1 - Confirmed</option>
+                        <option value="2 - Probably True">2 - Probably True</option>
+                        <option value="3 - Possibly True">3 - Possibly True</option>
+                        <option value="4 - Doubtful">4 - Doubtful</option>
+                        <option value="5 - Improbable">5 - Improbable</option>
+                        <option value="6 - Cannot be judged">6 - Cannot be judged</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="durationFilter">Conversation Duration</label>
+                    <select class="form-select" id="durationFilter">
+                        <option value="">All</option>
+                        <option value="Short">Short</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Long">Long</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conversation Analysis Cards -->
+    <div id="conversationList" class="row">
+        <!-- Cards will be dynamically populated here -->
+    </div>
+</div>
+
+<!-- Card Template -->
+<template id="conversationCardTemplate">
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Conversation Analysis</h5>
+                <span class="badge"></span>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6>Risk Assessment</h6>
+                    <p class="risk-assessment"></p>
+                </div>
+                <div class="mb-3">
+                    <h6>Key Insights</h6>
+                    <p class="key-insights"></p>
+                </div>
+                <div class="mb-3">
+                    <h6>Critical Entities</h6>
+                    <p class="critical-entities"></p>
+                </div>
+                <div class="mb-3">
+                    <h6>Locations Mentioned</h6>
+                    <p class="locations"></p>
+                </div>
+                <div class="mb-3">
+                    <h6>Sentiment Summary</h6>
+                    <p class="sentiment"></p>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <small class="text-muted">Source Reliability: <span class="reliability"></span></small>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-muted">Information Credibility: <span class="credibility"></span></small>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer text-muted">
+                <small>Analyzed at: <span class="analyzed-at"></span></small>
+            </div>
+        </div>
+    </div>
+</template>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Function to fetch and display conversation analysis data
+    async function fetchConversations() {
+        const priority = document.getElementById('priorityFilter').value;
+        const reliability = document.getElementById('reliabilityFilter').value;
+        const credibility = document.getElementById('credibilityFilter').value;
+        const duration = document.getElementById('durationFilter').value;
+
+        // Build query string
+        const params = new URLSearchParams();
+        if (priority) params.append('priority', priority);
+        if (reliability) params.append('reliability', reliability);
+        if (credibility) params.append('credibility', credibility);
+        if (duration) params.append('duration', duration);
+
+        try {
+            const response = await fetch(`/api/audio?${params.toString()}`);
+            const data = await response.json();
+            displayConversations(data);
+        } catch (error) {
+            console.error('Error fetching conversation data:', error);
+        }
+    }
+
+    // Function to display conversation cards
+    function displayConversations(conversations) {
+        const container = document.getElementById('conversationList');
+        const template = document.getElementById('conversationCardTemplate');
+        container.innerHTML = '';
+
+        conversations.forEach(conv => {
+            const card = template.content.cloneNode(true);
+            
+            // Set priority badge color
+            const badge = card.querySelector('.badge');
+            badge.textContent = conv.priority_level;
+            badge.classList.add(
+                conv.priority_level === 'High' ? 'bg-danger' :
+                conv.priority_level === 'Medium' ? 'bg-warning' :
+                'bg-success'
+            );
+
+            // Fill in the card content
+            card.querySelector('.risk-assessment').textContent = conv.risk_assessment;
+            card.querySelector('.key-insights').textContent = conv.key_insights;
+            card.querySelector('.critical-entities').textContent = conv.critical_entities.join(', ');
+            card.querySelector('.locations').textContent = conv.locations_mentioned.join(', ');
+            card.querySelector('.sentiment').textContent = conv.sentiment_summary;
+            card.querySelector('.reliability').textContent = conv.source_reliability;
+            card.querySelector('.credibility').textContent = conv.information_credibility;
+            card.querySelector('.analyzed-at').textContent = new Date(conv.analyzed_at).toLocaleString();
+
+            container.appendChild(card);
+        });
+    }
+
+    // Add event listeners to filters
+    const filters = ['priorityFilter', 'reliabilityFilter', 'credibilityFilter', 'durationFilter'];
+    filters.forEach(id => {
+        document.getElementById(id).addEventListener('change', fetchConversations);
+    });
+
+    // Initial fetch
+    fetchConversations();
+});
+</script>
+{% endblock %}

@@ -69,6 +69,11 @@ def calculate_threat_level():
 def telegram():
     return render_template('telegram.html')
 
+@main_bp.route('/audio')
+@login_required
+def audio():
+    return render_template('audio.html')
+
 @main_bp.route('/api/telegram-data')
 @login_required
 def telegram_data():

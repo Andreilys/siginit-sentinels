@@ -255,3 +255,46 @@ def update_intel_scores(intel_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'error': str(e)}), 400
+
+@api_bp.route('/audio')
+@login_required
+def get_conversation_analysis():
+    # Get filter parameters from request
+    priority = request.args.get('priority')
+    reliability = request.args.get('reliability')
+    credibility = request.args.get('credibility')
+    duration = request.args.get('duration')
+
+    # Build query
+    query = ConversationAnalysis.query
+
+    # Apply filters if provided
+    if priority:
+        query = query.filter(ConversationAnalysis.priority_level == priority)
+    if reliability:
+        query = query.filter(ConversationAnalysis.source_reliability == reliability)
+    if credibility:
+        query = query.filter(ConversationAnalysis.information_credibility == credibility)
+    if duration:
+        query = query.filter(ConversationAnalysis.conversation_duration == duration)
+
+    # Get results
+    conversations = query.order_by(ConversationAnalysis.analyzed_at.desc()).all()
+
+    return jsonify([{
+        'id': conv.id,
+        'priority_level': conv.priority_level,
+        'risk_assessment': conv.risk_assessment,
+        'key_insights': conv.key_insights,
+        'critical_entities': conv.critical_entities,
+        'locations_mentioned': conv.locations_mentioned,
+        'sentiment_summary': conv.sentiment_summary,
+        'source_reliability': conv.source_reliability,
+        'information_credibility': conv.information_credibility,
+        'recommended_actions': conv.recommended_actions,
+        'entity_relationships': conv.entity_relationships,
+        'speakers': conv.speakers,
+        'conversation_duration': conv.conversation_duration,
+        'analyzed_at': conv.analyzed_at.isoformat(),
+        'created_at': conv.created_at.isoformat()
+    } for conv in conversations])

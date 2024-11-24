@@ -155,3 +155,113 @@
     background-color: #6c757d;
     color: white;
 }
+
+.message-text {
+    white-space: pre-line;
+    line-height: 1.5;
+}
+
+.translated-content, .original-content {
+    background-color: #f8f9fa;
+    border-radius: 0.25rem;
+    padding: 1rem;
+}
+
+.translated-content {
+    border-left: 4px solid #28a745;
+}
+
+.original-content {
+    border-left: 4px solid #6c757d;
+}
+
+.media-container img:hover {
+    cursor: pointer;
+}
+
+.entity-group .badge {
+    font-weight: normal;
+    padding: 0.5em 0.8em;
+}
+
+.content-container {
+    max-width: 900px;
+}
+
+.message-text {
+    white-space: pre-line;
+    line-height: 1.5;
+}
+
+.search-section {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.search-controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.results-table {
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.table th {
+    background: rgba(255, 255, 255, 0.05);
+    font-weight: 500;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
+
+.table td {
+    border-color: rgba(255, 255, 255, 0.05);
+}
+
+
+.form-control, .form-select {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--border-color);
+    color: #fff;
+}
+
+.form-control:focus, .form-select:focus {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--primary);
+    box-shadow: none;
+}
+
+.input-group-text {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--border-color);
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.entity-badge {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: normal;
+    font-size: 0.85rem;
+}
+
+.content-preview {
+    position: relative;
+    padding-right: 1rem;
+}
+
+.content-preview::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 40px;
+    background: linear-gradient(to right, transparent, var(--dark-bg));
+}

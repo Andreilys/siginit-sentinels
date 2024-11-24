@@ -1,6 +1,49 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div class="alert-filters mb-4">
+    <div class="btn-group">
+        <button class="btn btn-outline-secondary active" data-filter="all">All</button>
+        <button class="btn btn-outline-danger" data-filter="high">High Priority (70-100%)</button>
+        <button class="btn btn-outline-warning" data-filter="medium">Medium Priority (40-70%)</button>
+        <button class="btn btn-outline-info" data-filter="low">Low Priority (0-40%)</button>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table" id="alerts-table">
+        <thead>
+            <tr>
+                <th>Source</th>
+                <th>Type</th>
+                <th>Content</th>
+                <th>Admiralty Score</th>
+                <th>Priority</th>
+                <th>Time</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for alert in alerts %}
+            <tr class="priority-{{ alert.priority }}">
+                <td>{{ alert.intel.source }}</td>
+                <td>{{ alert.intel.intel_type }}</td>
+                <td>{{ alert.intel.content[:100] }}...</td>
+                <td>
+                    <span class="badge bg-{{ 'success' if alert.admiralty_score >= 0.7 else 'warning' if alert.admiralty_score >= 0.4 else 'danger' }}">
+                        {{ "%.1f"|format(alert.admiralty_score * 100) }}%
+                    </span>
+                </td>
+                <td>{{ alert.priority|title }}</td>
+                <td>{{ alert.intel.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>
+                    <button class="btn btn-sm btn-primary" onclick="showIntelDetails('{{ alert.intel.id }}')">Details</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 <div class="row">
     <div class="col-12">
         <div class="card">

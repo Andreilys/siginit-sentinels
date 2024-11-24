@@ -15,18 +15,35 @@ def dashboard():
 @main_bp.route('/alerts')
 @login_required
 def alerts():
-    alerts = Alert.query\
-        .join(IntelligenceData, Alert.intel_id == IntelligenceData.id)\
-        .add_entity(IntelligenceData)\
-        .order_by(Alert.timestamp.desc())\
-        .all()
+    # Query intelligence data directly
+    intel_data = IntelligenceData.query.order_by(IntelligenceData.timestamp.desc()).all()
     
-    alert_data = []
-    for alert, intel in alerts:
-        alert.intel = intel  # Ensure we're setting the full intel object
-        alert_data.append(alert)
+    # Calculate Admiralty scores and assign priorities
+    alerts_data = []
+    for intel in intel_data:
+        # Calculate Admiralty score
+        reliability_scores = {'A': 5, 'B': 4, 'C': 3, 'D': 2, 'E': 1, 'F': 0}
+        credibility_scores = {'ONE': 5, 'TWO': 4, 'THREE': 3, 'FOUR': 2, 'FIVE': 1, 'SIX': 0}
+        
+        rel_score = reliability_scores.get(intel.source_reliability.name, 0)
+        cred_score = credibility_scores.get(intel.info_credibility.name, 0)
+        admiralty_score = ((rel_score + cred_score) / 10)  # 0 to 1 scale
+        
+        # Assign priority based on Admiralty score
+        if admiralty_score >= 0.7:
+            priority = 'high'
+        elif admiralty_score >= 0.4:
+            priority = 'medium'
+        else:
+            priority = 'low'
+            
+        alerts_data.append({
+            'intel': intel,
+            'admiralty_score': admiralty_score,
+            'priority': priority
+        })
     
-    return render_template('alerts.html', alerts=alert_data)
+    return render_template('alerts.html', alerts=alerts_data)
 
 @main_bp.route('/reports')
 @login_required

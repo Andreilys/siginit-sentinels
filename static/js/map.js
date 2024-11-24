@@ -241,15 +241,18 @@ function setupFilters() {
     
     subtypeSelect.disabled = true;
     
+// Update intel scores and refresh the map
 function updateIntelScores(intelId) {
     const reliability = document.querySelector(`.reliability-select[data-intel-id="${intelId}"]`).value;
     const credibility = document.querySelector(`.credibility-select[data-intel-id="${intelId}"]`).value;
+    
+    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     
     fetch('/api/intel-points/' + intelId + '/scores', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+            'X-CSRF-Token': token
         },
         body: JSON.stringify({ reliability, credibility })
     })
@@ -257,10 +260,18 @@ function updateIntelScores(intelId) {
     .then(data => {
         if (data.success) {
             loadIntelPoints(); // Refresh markers
-            updateStatistics(); // Update dashboard stats
+            if (window.dashboardUtils && window.dashboardUtils.updateStatistics) {
+                window.dashboardUtils.updateStatistics(); // Update dashboard stats
+            }
         }
+    })
+    .catch(error => {
+        console.error('Error updating scores:', error);
     });
 }
+
+// Make sure this function is available globally
+window.updateIntelScores = updateIntelScores;
     typeSelect.addEventListener('change', function(e) {
         const selectedType = e.target.value;
         subtypeSelect.innerHTML = '<option value="">All Subtypes</option>';

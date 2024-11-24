@@ -40,16 +40,18 @@ function setupViewControls() {
 }
 
 function updateVisualization() {
+    // Clear existing layers
+    markerLayer.clearLayers();
+    if (heatLayer) {
+        map.removeLayer(heatLayer);
+        heatLayer = null;
+    }
+    
     if (currentView === 'heatmap') {
-        markerLayer.clearLayers();
         if (window.intelData && window.intelData.length > 0) {
             initHeatmap(window.intelData);
         }
     } else {
-        if (heatLayer) {
-            map.removeLayer(heatLayer);
-            heatLayer = null;
-        }
         if (window.intelData && window.intelData.length > 0) {
             window.intelData.forEach(point => addMarker(point));
         }
